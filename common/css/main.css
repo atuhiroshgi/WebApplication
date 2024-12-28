@@ -1,0 +1,77 @@
+/*----------------------------------------------------
+ INITIALIZE
+----------------------------------------------------*/
+
+/*** BODY **************************/
+body {
+	padding:0 10px;
+}
+
+/*** HN ****************************/
+h1 {
+	font-size:28px;
+	padding:7px 0px;
+	margin-bottom:20px;
+}
+h2 {
+	font-size:20px;
+	padding:5px 0px 5px 15px;
+	border-left:10px solid #AAAAAA;
+	border-bottom:1px solid #000000;
+}
+
+
+/*** TABLE A *************************/
+table.searchTbl {
+	width : 500px;
+	margin:0 0 10px 10px;
+	text-align:left;
+}
+table.searchTbl th {
+	width : 150px;
+	padding:5px;
+	border-bottom:1px solid #AAAAAA;
+}
+table.searchTbl td {
+	line-height:20px;
+	padding:5px;
+	border-bottom:1px solid #AAAAAA;
+}
+
+/*** TABLE B *************************/
+table.resultTbl{
+	width : 500px;
+	margin:0 0 10px 10px;
+}
+table.resultTbl th {
+	width : 100px;
+	text-align:center;
+	border:1px solid #AAAAAA;
+	background-color:#DDDDDD;
+}
+table.resultTbl td {
+	padding:5px;
+	border:1px solid #AAAAAA;
+}
+table.resultTbl td.btn {
+	text-align:center;
+	background-color:#FAFAFA;
+}
+
+/*** OTHER *************************/
+.errMsg{
+	width:490px;
+	margin:10px 0px;
+	padding:10px;
+	color:red;
+	border:2px solid #FF0000;
+}
+.btnArea{
+	width:100px;
+	margin:0 0 10px 10px;
+}
+span.err{color: red;}
+
+.notice {
+	color: red;
+}

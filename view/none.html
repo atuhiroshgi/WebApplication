@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="ja">
+<head>
+    <meta charset="utf-8">
+    <link href="../common/css/normalize.css" rel="stylesheet" type="text/css">
+    <link href="../common/css/main.css" rel="stylesheet" type="text/css">
+</head>
+<body>
+    <h1>メンバーの検索</h1>
+    <h2>検索条件</h2>
+
+    <form action="index.php" method="post">
+        <table class="searchTbl">
+            <tr>
+                <th>ID</th>
+                <td><input type="text" name="id" value="<?= $sMemberId ?>" /></td>
+            </tr>
+            <tr>
+                <th>苗字</th>
+                <td><input type="text" name="last_name" value="<?= $sLastName ?>" /></td>
+            </tr>
+        </table>
+        <div class="btnArea">
+            <input type="submit" value="検索" />
+        </div>
+    </form>
+    <br />
+  
+    <h2>検索結果</h2>
+    <p>該当するメンバーがいません。</p>
+
+    <a href="insert.php">メンバーを新しく登録する</a>
+
+</body>
+</html>
