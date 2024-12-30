@@ -2,6 +2,9 @@
 
 require_once 'dbconnect.php'; // データベース接続関数を含む外部ファイルの読み込み
 
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
+
 /**
  * メンバー情報を取得する関数
  * 
@@ -138,7 +141,7 @@ function loginCheck($sLoginId = "", $sLoginPass = "") {
     $pdo = db_connect();
 
     try {
-        $sql = "SELECT * FROM shop_member WHERE login_id = :login_id AND login_pass = :login_pass";
+        $sql = "SELECT * FROM user WHERE login_id = :login_id AND login_pass = :login_pass";
         $stmh = $pdo->prepare($sql);
 
         $stmh->bindValue(':login_id', $sLoginId, PDO::PARAM_STR);
@@ -168,7 +171,7 @@ function getUserName($sLoginId = "", $sLoginPass = "") {
     $sUserName = "";
 
     try {
-        $sql = "SELECT last_name, first_name FROM shop_member WHERE login_id = :login_id AND login_pass = :login_pass";
+        $sql = "SELECT last_name, first_name FROM user WHERE login_id = :login_id AND login_pass = :login_pass";
         $stmh = $pdo->prepare($sql);
 
         $stmh->bindValue(':login_id', $sLoginId, PDO::PARAM_STR);

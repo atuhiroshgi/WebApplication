@@ -10,14 +10,14 @@
 
     <?php if($loginOk === true){ ?>
     <div>ようこそ！ <?= $userName ?> 様</div>
-    <a href="logout.php">ログアウト</a>
+    <a href="../ctrl/logout.php">ログアウト</a>
     <?php } else { ?>
-    <a href="login.php">ログイン</a>
+    <a href="../ctrl/login.php">ログイン</a>
     <?php } ?>
 
     <ul>
         <li>
-            <a href="top.php">トップページへ戻る</a>
+            <a href="../ctrl/top.php">トップページへ戻る</a>
         </li>
     </ul>
 

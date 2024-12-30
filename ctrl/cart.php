@@ -27,10 +27,14 @@
     //ログインチェックを取得
     $loginOk = loginCheck($sLoginId, $sLoginPass);
 
-    //ログインOKならユーザ名を取得
-    if($loginOk === true){
-        $userName = getUserName($sLoginId, $sLoginPass);
+    //ログインしていない場合はログイン画面へリダイレクト
+    if($loginOk !== true){
+        header("location: login.php");
+        exit();
     }
+
+    //ログインOKならユーザ名を取得
+    $userName = getUserName($sLoginId, $sLoginPass);
 
 //-------------------------------------------------------------------------------
 // ↑ここまでは top.php と一緒
