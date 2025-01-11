@@ -22,6 +22,10 @@
         </ul>
     </div>
 
+    <a href="../ctrl/help.php" class="help-button">
+        <i class="fas fa-question-circle"></i>
+    </a>
+
     <h1>カート</h1>
 
     <div class="cart-items">
@@ -39,24 +43,52 @@
                     <div class="cart-item-details">
                         <h3><?= htmlspecialchars($item['item_name']) ?></h3>
                         <p class="price">¥<?= number_format($item['item_price']) ?></p>
-                        <form action="../ctrl/cart.php" method="post" class="quantity-form">
-                            <input type="hidden" name="action" value="update">
-                            <input type="hidden" name="item_id" value="<?= $item['item_id'] ?>">
-                            <label>数量: 
-                                <input type="number" name="quantity" value="<?= $item['quantity'] ?>" 
-                                       min="0" max="99" class="quantity-input" 
-                                       onchange="this.form.submit()">
-                            </label>
-                        </form>
+                        <div class="item-controls">
+                            <form action="../ctrl/cart.php" method="post" class="quantity-form">
+                                <input type="hidden" name="action" value="update">
+                                <input type="hidden" name="item_id" value="<?= $item['item_id'] ?>">
+                                <label>数量: 
+                                    <input type="number" name="quantity" value="<?= $item['quantity'] ?>" 
+                                           min="0" max="99" class="quantity-input" 
+                                           onchange="this.form.submit()">
+                                </label>
+                            </form>
+                            <form action="../ctrl/cart.php" method="post" class="delete-form">
+                                <input type="hidden" name="action" value="update">
+                                <input type="hidden" name="item_id" value="<?= $item['item_id'] ?>">
+                                <input type="hidden" name="quantity" value="0">
+                                <button type="submit" class="delete-button">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </form>
+                        </div>
                         <p class="subtotal">小計: ¥<?= number_format($item['item_price'] * $item['quantity']) ?></p>
                     </div>
                 </div>
             <?php endforeach; ?>
-            
+
             <div class="cart-total">
-                <h3>合計金額: ¥<?= number_format(array_sum(array_map(function($item) {
+                <?php
+                $subtotal = array_sum(array_map(function($item) {
                     return $item['item_price'] * $item['quantity'];
-                }, $cartItems))) ?></h3>
+                }, $cartItems));
+                $tax = floor($subtotal * 0.1);
+                $total = $subtotal + $tax;
+                ?>
+                <div class="total-details">
+                    <div class="total-row">
+                        <span class="total-label">商品小計:</span>
+                        <span class="total-amount">¥<?= number_format($subtotal) ?></span>
+                    </div>
+                    <div class="total-row">
+                        <span class="total-label">消費税（10%）:</span>
+                        <span class="total-amount">¥<?= number_format($tax) ?></span>
+                    </div>
+                    <div class="total-row grand-total">
+                        <span class="total-label">購入合計金額（税込）:</span>
+                        <span class="total-amount">¥<?= number_format($total) ?></span>
+                    </div>
+                </div>
                 
                 <div class="button-container">
                     <form action="../ctrl/confirm.php" method="post">
@@ -70,90 +102,61 @@
     </div>
 
     <style>
-    .cart-items {
-        max-width: 800px;
-        margin: 0 auto;
-        padding: 20px;
-    }
-
-    .cart-item {
+    .item-controls {
         display: flex;
         align-items: center;
-        padding: 15px;
-        margin-bottom: 15px;
-        background-color: white;
-        border-radius: 8px;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-    }
-
-    .cart-item-image {
-        width: 120px;
-        height: 120px;
-        margin-right: 20px;
-        flex-shrink: 0;
-    }
-
-    .cart-item-image img {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-        border-radius: 4px;
-    }
-
-    .cart-item-details {
-        flex-grow: 1;
-    }
-
-    .cart-item h3 {
-        margin: 0 0 10px 0;
-        color: #333;
-    }
-
-    .price {
-        color: #e44d26;
-        font-weight: bold;
-        margin: 5px 0;
-    }
-
-    .quantity-form {
+        gap: 15px;
         margin: 10px 0;
     }
 
-    .quantity-input {
-        width: 60px;
-        padding: 5px;
-        border: 1px solid #ddd;
-        border-radius: 4px;
-    }
-
-    .subtotal {
-        font-weight: bold;
-        color: #2c3e50;
-        margin: 5px 0;
-    }
-
-    .cart-total {
-        text-align: right;
-        padding: 20px;
-        background-color: white;
-        border-radius: 8px;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-        margin-top: 20px;
-    }
-
-    .purchase-button {
-        padding: 10px 30px;
-        font-size: 1.2em;
-        background-color: #4CAF50;
-        color: white;
+    .delete-button {
+        background: none;
         border: none;
-        border-radius: 5px;
+        color: #e44d26;
         cursor: pointer;
-        transition: background-color 0.3s;
+        padding: 5px;
+        font-size: 1.2em;
+        transition: color 0.3s;
     }
 
-    .purchase-button:hover {
-        background-color: #45a049;
+    .delete-button:hover {
+        color: #c53d1c;
+    }
+
+    .quantity-form {
+        margin: 0;
+    }
+
+    .total-details {
+        margin-bottom: 20px;
+    }
+
+    .total-row {
+        display: flex;
+        justify-content: space-between;
+        padding: 10px 0;
+        border-bottom: 1px solid #eee;
+    }
+
+    .grand-total {
+        border-bottom: none;
+        font-weight: bold;
+        font-size: 1.2em;
+        margin-top: 10px;
+        padding-top: 10px;
+        border-top: 2px solid #333;
+    }
+
+    .total-label {
+        color: #666;
+    }
+
+    .total-amount {
+        font-weight: bold;
+    }
+
+    .grand-total .total-amount {
+        color: #e44d26;
     }
     </style>
 </body>

@@ -36,6 +36,18 @@
                 </td>
             </tr>
             <tr>
+                <th>カテゴリー</th>
+                <td>
+                    <select name="category_id">
+                        <option value="0" <?= $nCategoryId == 0 ? "selected" : "" ?>>カレー</option>
+                        <option value="1" <?= $nCategoryId == 1 ? "selected" : "" ?>>ナン</option>
+                        <option value="2" <?= $nCategoryId == 2 ? "selected" : "" ?>>サイドメニュー</option>
+                        <option value="3" <?= $nCategoryId == 3 ? "selected" : "" ?>>ドリンク</option>
+                        <option value="4" <?= $nCategoryId == 4 ? "selected" : "" ?>>その他</option>
+                    </select>
+                </td>
+            </tr>
+            <tr>
                 <th>販売状態</th>
                 <td>
                     <input type="radio" name="stop_flg" value="0" <?= $nStopFlg == "0" ? "checked" : "" ?>>販売中

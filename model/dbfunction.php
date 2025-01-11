@@ -6,61 +6,6 @@ error_reporting(E_ALL);
 ini_set('display_errors', 1);
 
 /**
- * メンバー情報を取得する関数
- * 
- * @param int $sMemberId メンバーID（オプション）
- * @param string $sLastName 苗字（オプション）
- * @return array メンバー情報の配列
- */
-function selectMember($memberId = "", $lastName = "", $address = "") {
-    try {
-        $pdo = db_connect();
-        
-        $where = array();
-        $params = array();
-        
-        // ID検索
-        if (!empty($memberId)) {
-            $where[] = "id = :id";
-            $params[':id'] = $memberId;
-        }
-        
-        // 苗字検索
-        if (!empty($lastName)) {
-            $where[] = "last_name LIKE :last_name";
-            $params[':last_name'] = '%' . $lastName . '%';
-        }
-        
-        // 住所検索
-        if (!empty($address)) {
-            $where[] = "address LIKE :address";
-            $params[':address'] = '%' . $address . '%';
-        }
-        
-        // WHERE句の構築
-        $whereClause = !empty($where) ? "WHERE " . implode(" AND ", $where) : "";
-        
-        $sql = "SELECT * FROM user {$whereClause} ORDER BY id DESC";
-        error_log("Search SQL: " . $sql); // デバッグ用
-        
-        $stmh = $pdo->prepare($sql);
-        
-        // パラメータのバインド
-        foreach ($params as $key => $val) {
-            $stmh->bindValue($key, $val, PDO::PARAM_STR);
-            error_log("Binding {$key} = {$val}"); // デバッグ用
-        }
-        
-        $stmh->execute();
-        return $stmh->fetchAll(PDO::FETCH_ASSOC);
-        
-    } catch (PDOException $e) {
-        error_log("Member Search Error: " . $e->getMessage());
-        throw $e;
-    }
-}
-
-/**
  * メンバーを新規登録する関数
  * 
  * @param string $sFirstName 名前
@@ -95,49 +40,99 @@ function insertMember($sFirstName, $sLastName) {
  * @param string $sLastName 苗字
  * @return bool 更新の成功/失敗
  */
-function updateMember($sMemberId, $sFirstName, $sLastName) {
-    $pdo = db_connect();
-
+function updateMember($sMemberId, $sFirstName, $sLastName, $email = '', $address = '') {
     try {
-        $sql = "UPDATE user SET last_name = :last_name, first_name = :first_name WHERE id = :id";
-        $stmh = $pdo->prepare($sql);
+        $pdo = db_connect();
+        
+        // デバッグ情報の出力
+        error_log("=== updateMember 開始 ===");
+        error_log("ID: " . $sMemberId);
+        error_log("FirstName: " . $sFirstName);
+        error_log("LastName: " . $sLastName);
+        error_log("Email: " . $email);
+        error_log("Address: " . $address);
 
+        // 既存のデータを取得
+        $currentData = getMemberById($sMemberId);
+        if (!$currentData) {
+            error_log("既存データの取得に失敗: ID=" . $sMemberId);
+            return false;
+        }
+        
+        $sql = "UPDATE user SET 
+                last_name = :last_name, 
+                first_name = :first_name,
+                email = :email,
+                login_id = :login_id,
+                address = :address
+                WHERE id = :id";
+        
+        $stmh = $pdo->prepare($sql);
+        
+        // バインド値の設定
         $stmh->bindValue(':id', (int)$sMemberId, PDO::PARAM_INT);
         $stmh->bindValue(':last_name', $sLastName, PDO::PARAM_STR);
         $stmh->bindValue(':first_name', $sFirstName, PDO::PARAM_STR);
+        $stmh->bindValue(':email', $email, PDO::PARAM_STR);
+        $stmh->bindValue(':login_id', $email, PDO::PARAM_STR);
+        $stmh->bindValue(':address', $address, PDO::PARAM_STR);
+        
+        // 実行
+        $result = $stmh->execute();
+        
+        if (!$result) {
+            error_log("SQLエラー: " . print_r($stmh->errorInfo(), true));
+        }
+        
+        return $result;
 
-        $stmh->execute();
-        return true;
-
-    } catch (PDOException $Exception) {
-        handleError($Exception);
+    } catch (PDOException $e) {
+        error_log("データベースエラー: " . $e->getMessage());
+        return false;
+    } catch (Exception $e) {
+        error_log("一般エラー: " . $e->getMessage());
+        return false;
     }
-
-    return false;
 }
 
 /**
  * メンバーを削除する関数
  * 
- * @param int $sMemberId メンバーID
+ * @param int $memberId メンバーID
  * @return bool 削除の成功/失敗
  */
-function deleteMember($sMemberId) {
-    $pdo = db_connect();
-
+function deleteMember($memberId) {
     try {
+        $pdo = db_connect();
+        
+        // メンバーの存在確認
+        $checkSql = "SELECT id FROM user WHERE id = :id";
+        $checkStmt = $pdo->prepare($checkSql);
+        $checkStmt->bindValue(':id', $memberId, PDO::PARAM_INT);
+        $checkStmt->execute();
+        
+        if (!$checkStmt->fetch()) {
+            error_log("メンバーが存在しません: ID=" . $memberId);
+            return false;
+        }
+        
+        // メンバーの削除
         $sql = "DELETE FROM user WHERE id = :id";
-        $stmh = $pdo->prepare($sql);
-        $stmh->bindValue(':id', (int)$sMemberId, PDO::PARAM_INT);
-
-        $stmh->execute();
-        return true;
-
-    } catch (PDOException $Exception) {
-        handleError($Exception);
+        $stmt = $pdo->prepare($sql);
+        $stmt->bindValue(':id', $memberId, PDO::PARAM_INT);
+        
+        $result = $stmt->execute();
+        
+        if (!$result) {
+            error_log("メンバー削除エラー: " . print_r($stmt->errorInfo(), true));
+        }
+        
+        return $result;
+        
+    } catch (PDOException $e) {
+        error_log("メンバー削除エラー: " . $e->getMessage());
+        return false;
     }
-
-    return false;
 }
 
 /**
@@ -233,41 +228,59 @@ function selectItem() {
 /**
  * 商品検索
  * 
- * @param string $itemId 商品ID
- * @param string $itemName 商品名
+ * @param array $conditions 検索条件
  * @return array 検索結果
  */
 function searchItems($conditions) {
-    global $dbh;
-    
-    $sql = "SELECT * FROM item WHERE 1=1";
-    $params = [];
-    
-    // 既存の検索条件
-    if (!empty($conditions['item_id'])) {
-        $sql .= " AND item_id = ?";
-        $params[] = $conditions['item_id'];
+    try {
+        $pdo = db_connect();
+        
+        $sql = "SELECT * FROM item WHERE 1=1";
+        $params = [];
+        
+        // 既存の検索条件
+        if (!empty($conditions['item_id'])) {
+            $sql .= " AND item_id = :item_id";
+            $params[':item_id'] = $conditions['item_id'];
+        }
+        if (!empty($conditions['item_name'])) {
+            $sql .= " AND item_name LIKE :item_name";
+            $params[':item_name'] = '%' . $conditions['item_name'] . '%';
+        }
+        if (!empty($conditions['item_price'])) {
+            $sql .= " AND item_price = :item_price";
+            $params[':item_price'] = $conditions['item_price'];
+        }
+        if (!empty($conditions['category_id'])) {
+            $sql .= " AND category_id = :category_id";
+            $params[':category_id'] = $conditions['category_id'];
+        }
+        if (isset($conditions['stop_flg'])) {
+            $sql .= " AND stop_flg = :stop_flg";
+            $params[':stop_flg'] = $conditions['stop_flg'];
+        }
+        
+        error_log("実行SQL: " . $sql); // デバッグ用
+        error_log("パラメータ: " . print_r($params, true)); // デバッグ用
+        
+        $stmt = $pdo->prepare($sql);
+        foreach ($params as $key => $value) {
+            $stmt->bindValue($key, $value, 
+                is_int($value) ? PDO::PARAM_INT : PDO::PARAM_STR);
+        }
+        
+        $stmt->execute();
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        
+    } catch (PDOException $e) {
+        error_log("商品検索エラー: " . $e->getMessage());
+        error_log("スタックトレース: " . $e->getTraceAsString());
+        return array();
+    } catch (Exception $e) {
+        error_log("一般エラー: " . $e->getMessage());
+        error_log("スタックトレース: " . $e->getTraceAsString());
+        return array();
     }
-    if (!empty($conditions['item_name'])) {
-        $sql .= " AND item_name LIKE ?";
-        $params[] = '%' . $conditions['item_name'] . '%';
-    }
-    if (!empty($conditions['item_price'])) {
-        $sql .= " AND item_price = ?";
-        $params[] = $conditions['item_price'];
-    }
-    if (!empty($conditions['category_id'])) {
-        $sql .= " AND category_id = ?";
-        $params[] = $conditions['category_id'];
-    }
-    if (isset($conditions['stop_flg'])) {
-        $sql .= " AND stop_flg = ?";
-        $params[] = $conditions['stop_flg'];
-    }
-    
-    $stmt = $dbh->prepare($sql);
-    $stmt->execute($params);
-    return $stmt->fetchAll(PDO::FETCH_ASSOC);
 }
 
 /**
@@ -369,12 +382,33 @@ function getCartItems($cart) {
 function deleteItem($itemId) {
     try {
         $pdo = db_connect();
+        
+        // 商品の存在確認
+        $checkSql = "SELECT item_id FROM item WHERE item_id = :item_id";
+        $checkStmt = $pdo->prepare($checkSql);
+        $checkStmt->bindValue(':item_id', $itemId, PDO::PARAM_INT);
+        $checkStmt->execute();
+        
+        if (!$checkStmt->fetch()) {
+            error_log("商品が存在しません: ID=" . $itemId);
+            return false;
+        }
+        
+        // 商品の削除
         $sql = "DELETE FROM item WHERE item_id = :item_id";
         $stmt = $pdo->prepare($sql);
         $stmt->bindValue(':item_id', $itemId, PDO::PARAM_INT);
-        return $stmt->execute();
+        
+        $result = $stmt->execute();
+        
+        if (!$result) {
+            error_log("商品削除エラー: " . print_r($stmt->errorInfo(), true));
+        }
+        
+        return $result;
+        
     } catch (PDOException $e) {
-        handleError($e);
+        error_log("商品削除エラー: " . $e->getMessage());
         return false;
     }
 }
@@ -596,18 +630,19 @@ function getItemById($itemId) {
  * 販売状態で商品を取得
  */
 function selectItemByStatus($stop_flg) {
-    global $dbh;
-    
     try {
-        $sql = "SELECT * FROM item WHERE stop_flg = :stop_flg ORDER BY item_id DESC";
-        $stmt = $dbh->prepare($sql);
-        $stmt->bindValue(':stop_flg', $stop_flg, PDO::PARAM_INT);
-        $stmt->execute();
+        $pdo = db_connect();
         
-        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        $sql = "SELECT * FROM item WHERE stop_flg = :stop_flg ORDER BY item_id DESC";
+        $stmh = $pdo->prepare($sql);
+        $stmh->bindValue(':stop_flg', $stop_flg, PDO::PARAM_INT);
+        $stmh->execute();
+        
+        return $stmh->fetchAll(PDO::FETCH_ASSOC);
+        
     } catch (PDOException $e) {
-        handleError($e);
-        exit;
+        error_log("Status Select Error: " . $e->getMessage());
+        return array();
     }
 }
 
@@ -615,18 +650,19 @@ function selectItemByStatus($stop_flg) {
  * カテゴリIDで商品を取得
  */
 function selectItemByCategory($category_id) {
-    global $dbh;
-    
     try {
-        $sql = "SELECT * FROM item WHERE category_id = :category_id ORDER BY item_id DESC";
-        $stmt = $dbh->prepare($sql);
-        $stmt->bindValue(':category_id', $category_id, PDO::PARAM_INT);
-        $stmt->execute();
+        $pdo = db_connect();
         
-        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        $sql = "SELECT * FROM item WHERE category_id = :category_id ORDER BY item_id DESC";
+        $stmh = $pdo->prepare($sql);
+        $stmh->bindValue(':category_id', $category_id, PDO::PARAM_INT);
+        $stmh->execute();
+        
+        return $stmh->fetchAll(PDO::FETCH_ASSOC);
+        
     } catch (PDOException $e) {
-        handleError($e);
-        exit;
+        error_log("Category Select Error: " . $e->getMessage());
+        return array();
     }
 }
 
@@ -634,19 +670,18 @@ function selectItemByCategory($category_id) {
  * 全カテゴリを取得
  */
 function selectAllCategories() {
-    global $dbh;
-    
     try {
-        $sql = "SELECT * FROM category ORDER BY category_id";
-        $stmt = $dbh->prepare($sql);
-        $stmt->execute();
+        $pdo = db_connect();
         
-        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        $sql = "SELECT * FROM category ORDER BY category_id";
+        $stmh = $pdo->prepare($sql);
+        $stmh->execute();
+        
+        return $stmh->fetchAll(PDO::FETCH_ASSOC);
+        
     } catch (PDOException $e) {
         error_log("カテゴリ取得エラー: " . $e->getMessage());
-        error_log("SQL: " . $sql);
-        handleError($e);
-        exit;
+        return array();
     }
 }
 
@@ -680,48 +715,110 @@ function selectAdminById($admin_id) {
 }
 
 function searchMember($conditions) {
-    global $dbh;
-    
-    $sql = "SELECT * FROM user WHERE 1=1";
-    $params = [];
-    
-    if (!empty($conditions['member_name'])) {
-        // 姓名どちらにもあいまい検索を適用
-        $sql .= " AND (
-            last_name LIKE ? OR 
-            first_name LIKE ? OR
-            CONCAT(last_name, first_name) LIKE ? OR
-            CONCAT(first_name, last_name) LIKE ?
-        )";
-        $searchName = '%' . $conditions['member_name'] . '%';
-        $params[] = $searchName;  // 姓であいまい検索
-        $params[] = $searchName;  // 名であいまい検索
-        $params[] = $searchName;  // フルネームであいまい検索（姓名）
-        $params[] = $searchName;  // フルネームであいまい検索（名姓）
-    }
-    if (!empty($conditions['email'])) {
-        $sql .= " AND email LIKE ?";
-        $params[] = '%' . $conditions['email'] . '%';
-    }
-    if (!empty($conditions['address'])) {
-        $sql .= " AND address LIKE ?";
-        $params[] = '%' . $conditions['address'] . '%';
-    }
-    
     try {
-        error_log('実行SQL: ' . $sql);  // デバッグ用
-        error_log('検索条件: ' . print_r($params, true));  // デバッグ用
+        $pdo = db_connect();
         
-        $stmt = $dbh->prepare($sql);
+        $sql = "SELECT * FROM user WHERE 1=1";
+        $params = [];
+        
+        if (!empty($conditions['member_name'])) {
+            $sql .= " AND (
+                last_name LIKE ? OR 
+                first_name LIKE ? OR
+                CONCAT(last_name, first_name) LIKE ? OR
+                CONCAT(first_name, last_name) LIKE ?
+            )";
+            $searchName = '%' . $conditions['member_name'] . '%';
+            $params[] = $searchName;
+            $params[] = $searchName;
+            $params[] = $searchName;
+            $params[] = $searchName;
+        }
+        if (!empty($conditions['email'])) {
+            $sql .= " AND email LIKE ?";
+            $params[] = '%' . $conditions['email'] . '%';
+        }
+        if (!empty($conditions['address'])) {
+            $sql .= " AND address LIKE ?";
+            $params[] = '%' . $conditions['address'] . '%';
+        }
+        
+        $stmt = $pdo->prepare($sql);
         $stmt->execute($params);
-        $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
         
-        error_log('検索結果件数: ' . count($results));  // デバッグ用
-        return $results;
     } catch (PDOException $e) {
         error_log('メンバー検索エラー: ' . $e->getMessage());
+        return array();
+    }
+}
+
+function searchItemsByKeyword($keyword) {
+    try {
+        $pdo = db_connect();
+        $sql = "SELECT * FROM item WHERE item_name LIKE :keyword OR item_text LIKE :keyword";
+        $stmt = $pdo->prepare($sql);
+        $searchKeyword = '%' . $keyword . '%';
+        $stmt->bindValue(':keyword', $searchKeyword, PDO::PARAM_STR);
+        $stmt->execute();
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    } catch (PDOException $e) {
+        error_log("検索エラー: " . $e->getMessage());
         return [];
     }
 }
 
+function searchItemsByKeywordAndStatus($keyword, $status) {
+    try {
+        $pdo = db_connect();
+        $sql = "SELECT * FROM item WHERE (item_name LIKE :keyword OR item_text LIKE :keyword) AND stop_flg = :status";
+        $stmt = $pdo->prepare($sql);
+        $searchKeyword = '%' . $keyword . '%';
+        $stmt->bindValue(':keyword', $searchKeyword, PDO::PARAM_STR);
+        $stmt->bindValue(':status', $status, PDO::PARAM_INT);
+        $stmt->execute();
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    } catch (PDOException $e) {
+        error_log("検索エラー: " . $e->getMessage());
+        return [];
+    }
+}
+
+// 会員情報を取得する関数
+function getMemberById($memberId) {
+    try {
+        $pdo = db_connect();
+        $sql = "SELECT * FROM user WHERE id = :id";
+        $stmt = $pdo->prepare($sql);
+        $stmt->bindValue(':id', $memberId, PDO::PARAM_INT);
+        $stmt->execute();
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    } catch (PDOException $e) {
+        error_log("Member Select Error: " . $e->getMessage());
+        return null;
+    }
+}
+
+/**
+ * 全会員情報を取得する関数
+ * 
+ * @return array 会員情報の配列
+ */
+function selectMember() {
+    try {
+        $pdo = db_connect();
+        
+        $sql = "SELECT * FROM user ORDER BY id";
+        $stmh = $pdo->prepare($sql);
+        $stmh->execute();
+        
+        return $stmh->fetchAll(PDO::FETCH_ASSOC);
+        
+    } catch (PDOException $e) {
+        error_log("会員情報取得エラー: " . $e->getMessage());
+        return array();
+    }
+}
+
 ?>
+

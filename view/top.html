@@ -10,7 +10,7 @@
     <h1>トップページ</h1>
 
     <div class="header">
-        <?php if (!empty($userName)): ?>
+        <?php if ($loginOk === true && !empty($userName)): ?>
             <p>ようこそ！ <?= htmlspecialchars($userName) ?>様</p>
         <?php else: ?>
             <p>ようこそ！ ゲスト様</p>
@@ -32,6 +32,10 @@
         </ul>
     </div>
 
+    <a href="../ctrl/help.php" class="help-button">
+        <i class="fas fa-question-circle"></i>
+    </a>
+
     <div class="search-container">
         <form action="../ctrl/top.php" method="get">
             <input type="text" name="keyword" 
@@ -44,18 +48,48 @@
     </div>
 
     <div class="filter-buttons">
-        <a href="?filter=all" class="filter-btn <?php echo (!isset($_GET['filter']) || $_GET['filter'] === 'all') ? 'active' : ''; ?>">
+        <a href="?filter=all<?= isset($_GET['keyword']) ? '&keyword=' . htmlspecialchars($_GET['keyword']) : '' ?>" 
+           class="filter-btn <?php echo (!isset($_GET['filter']) || $_GET['filter'] === 'all') ? 'active' : ''; ?>">
             すべて表示
         </a>
-        <a href="?filter=available" class="filter-btn <?php echo (isset($_GET['filter']) && $_GET['filter'] === 'available') ? 'active' : ''; ?>">
+        <a href="?filter=available<?= isset($_GET['keyword']) ? '&keyword=' . htmlspecialchars($_GET['keyword']) : '' ?>" 
+           class="filter-btn <?php echo (isset($_GET['filter']) && $_GET['filter'] === 'available') ? 'active' : ''; ?>">
             販売中のみ
         </a>
-        <a href="?filter=stopped" class="filter-btn <?php echo (isset($_GET['filter']) && $_GET['filter'] === 'stopped') ? 'active' : ''; ?>">
+        <a href="?filter=stopped<?= isset($_GET['keyword']) ? '&keyword=' . htmlspecialchars($_GET['keyword']) : '' ?>" 
+           class="filter-btn <?php echo (isset($_GET['filter']) && $_GET['filter'] === 'stopped') ? 'active' : ''; ?>">
             在庫切れのみ
         </a>
     </div>
 
-    <h2>商品一覧 (<?= count($items) ?>件)</h2>
+    <div class="category-buttons">
+        <a href="?category=all<?= isset($_GET['filter']) ? '&filter=' . htmlspecialchars($_GET['filter']) : '' ?><?= isset($_GET['keyword']) ? '&keyword=' . htmlspecialchars($_GET['keyword']) : '' ?>" 
+           class="category-btn <?php echo (!isset($_GET['category']) || $_GET['category'] === 'all') ? 'active' : ''; ?>">
+            すべて
+        </a>
+        <a href="?category=0<?= isset($_GET['filter']) ? '&filter=' . htmlspecialchars($_GET['filter']) : '' ?><?= isset($_GET['keyword']) ? '&keyword=' . htmlspecialchars($_GET['keyword']) : '' ?>" 
+           class="category-btn <?php echo (isset($_GET['category']) && $_GET['category'] === '0') ? 'active' : ''; ?>">
+            カレー
+        </a>
+        <a href="?category=1<?= isset($_GET['filter']) ? '&filter=' . htmlspecialchars($_GET['filter']) : '' ?><?= isset($_GET['keyword']) ? '&keyword=' . htmlspecialchars($_GET['keyword']) : '' ?>" 
+           class="category-btn <?php echo (isset($_GET['category']) && $_GET['category'] === '1') ? 'active' : ''; ?>">
+            ナン
+        </a>
+        <a href="?category=2<?= isset($_GET['filter']) ? '&filter=' . htmlspecialchars($_GET['filter']) : '' ?><?= isset($_GET['keyword']) ? '&keyword=' . htmlspecialchars($_GET['keyword']) : '' ?>" 
+           class="category-btn <?php echo (isset($_GET['category']) && $_GET['category'] === '2') ? 'active' : ''; ?>">
+            サイドメニュー
+        </a>
+        <a href="?category=3<?= isset($_GET['filter']) ? '&filter=' . htmlspecialchars($_GET['filter']) : '' ?><?= isset($_GET['keyword']) ? '&keyword=' . htmlspecialchars($_GET['keyword']) : '' ?>" 
+           class="category-btn <?php echo (isset($_GET['category']) && $_GET['category'] === '3') ? 'active' : ''; ?>">
+            ドリンク
+        </a>
+        <a href="?category=4<?= isset($_GET['filter']) ? '&filter=' . htmlspecialchars($_GET['filter']) : '' ?><?= isset($_GET['keyword']) ? '&keyword=' . htmlspecialchars($_GET['keyword']) : '' ?>" 
+           class="category-btn <?php echo (isset($_GET['category']) && $_GET['category'] === '4') ? 'active' : ''; ?>">
+            その他
+        </a>
+    </div>
+
+    <h2 id="item-list-heading">商品一覧 (<?= count($items) ?>件)</h2>
     <div class="item-list">
         <?php if (empty($items)): ?>
             <p>商品が見つかりませんでした。</p>
@@ -98,6 +132,17 @@
                 // 商品詳細ページへ遷移
                 window.location.href = this.dataset.url;
             });
+        });
+
+        // URLパラメータをチェックして、検索や絞り込みが行われた場合にスクロール
+        window.addEventListener('load', function() {
+            const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.has('keyword') || urlParams.has('filter') || urlParams.has('category')) {
+                const heading = document.getElementById('item-list-heading');
+                if (heading) {
+                    heading.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
+            }
         });
     </script>
 
@@ -208,6 +253,32 @@
         background-color: #4CAF50;
         color: white;
         border-color: #45a049;
+    }
+
+    .category-buttons {
+        margin: 20px 0;
+        text-align: center;
+    }
+
+    .category-btn {
+        display: inline-block;
+        padding: 8px 16px;
+        margin: 0 5px;
+        background-color: #f0f0f0;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        text-decoration: none;
+        color: #333;
+    }
+
+    .category-btn:hover {
+        background-color: #e0e0e0;
+    }
+
+    .category-btn.active {
+        background-color: #2196F3;
+        color: white;
+        border-color: #1976D2;
     }
     </style>
 </body>

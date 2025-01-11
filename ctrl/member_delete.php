@@ -1,62 +1,31 @@
 <?php
-//**************************************************
-// 初期処理
-//**************************************************
+session_start();
 require_once('../model/dbconnect.php');
 require_once('../model/dbfunction.php');
 
-//**************************************************
-// 変数定義
-//**************************************************
-$bRet = false;
-$arrErr = array();
-
-//**************************************************
-// 変数取得
-//**************************************************
-$sMemberId = isset($_POST['id']) ? $_POST['id'] : "";
-$nStepFlg = isset($_POST['step']) ? $_POST['step'] : "";
-
-//**************************************************
-// 初期表示（メンバー情報取得）
-//**************************************************
-if($nStepFlg == ""){
-    // メンバー情報の取得
-    $member = selectMember($sMemberId);
-    
-    // メンバーが存在しない場合のエラーハンドリング
-    if(empty($member)) {
-        die("該当するメンバーが見つかりません");
-    }
-
-    // 表示用データの設定
-    $sLastName = $member[0]['last_name'];
-    $sFirstName = $member[0]['first_name'];
+// POSTリクエストのみ受け付ける
+if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+    header('Location: index.php');
+    exit;
 }
 
-//**************************************************
-// 削除処理
-//**************************************************
-if ($nStepFlg == "1"){
-    $bRet = deleteMember($sMemberId);
+// メンバーIDの取得
+$memberId = isset($_POST['member_id']) ? (int)$_POST['member_id'] : 0;
 
-    // 削除失敗時は初期画面に戻す
-    if($bRet === false){
-        $nStepFlg = "";
+if ($memberId > 0) {
+    try {
+        if (deleteMember($memberId)) {
+            $_SESSION['success_message'] = "メンバーを削除しました。";
+        } else {
+            $_SESSION['error_message'] = "メンバーの削除に失敗しました。";
+        }
+    } catch (Exception $e) {
+        error_log("削除処理エラー: " . $e->getMessage());
+        $_SESSION['error_message'] = "システムエラーが発生しました。";
     }
 }
 
-//**************************************************
-// HTML表示
-//**************************************************
-if($nStepFlg == ""){
-    require_once('../view/member_delete.html');
-} else if ($nStepFlg == "1") {
-    // 削除成功時は完了画面を表示し、その後トップページへリダイレクト
-    require_once('../view/member_deleteOK.html');
-    if ($bRet) {
-        header('Location: index.php?message=メンバーを削除しました');
-        exit;
-    }
-}
+// メンバー一覧ページにリダイレクト
+header('Location: index.php?scroll=member');
+exit;
 ?>

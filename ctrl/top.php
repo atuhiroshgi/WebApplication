@@ -9,35 +9,52 @@ require_once('../model/dbfunction.php');
 // データベース接続
 $dbh = db_connect();
 
-//**************************************************
-// ユーザー情報取得
-//**************************************************
-$userName = '';
-if (isset($_SESSION['user_id'])) {
-    // ユーザー情報を取得
-    $userId = $_SESSION['user_id'];
-    $userInfo = selectUserById($userId);
-    if (!empty($userInfo)) {
-        $userName = $userInfo[0]['last_name'] . ' ' . $userInfo[0]['first_name'];
-    }
-}
+// ログイン情報の取得
+$sLoginId = isset($_SESSION['login_id']) ? $_SESSION['login_id'] : "";
+$sLoginPass = isset($_SESSION['login_pass']) ? $_SESSION['login_pass'] : "";
+
+// ログインチェックとユーザー名取得
+$loginOk = loginCheck($sLoginId, $sLoginPass);
+$userName = $loginOk ? getUserName($sLoginId, $sLoginPass) : "";
 
 //**************************************************
 // 商品一覧取得
 //**************************************************
-// 販売状態フィルターの取得
+// 検索キーワードとフィルターの取得
+$keyword = isset($_GET['keyword']) ? trim($_GET['keyword']) : '';
 $filter = isset($_GET['filter']) ? $_GET['filter'] : 'all';
+$category = isset($_GET['category']) ? $_GET['category'] : 'all';
 
-// フィルターに応じた商品の取得
-switch ($filter) {
-    case 'available':
-        $items = selectItemByStatus(0); // 販売中の商品のみ
-        break;
-    case 'stopped':
-        $items = selectItemByStatus(1); // 販売停止中の商品のみ
-        break;
-    default:
-        $items = selectItem(); // すべての商品
+// 検索、フィルター、カテゴリの組み合わせで商品を取得
+if (!empty($keyword)) {
+    switch ($filter) {
+        case 'available':
+            $items = searchItemsByKeywordAndStatus($keyword, 0);
+            break;
+        case 'stopped':
+            $items = searchItemsByKeywordAndStatus($keyword, 1);
+            break;
+        default:
+            $items = searchItemsByKeyword($keyword);
+    }
+} else {
+    switch ($filter) {
+        case 'available':
+            $items = selectItemByStatus(0);
+            break;
+        case 'stopped':
+            $items = selectItemByStatus(1);
+            break;
+        default:
+            $items = selectItem();
+    }
+}
+
+// カテゴリでフィルタリング
+if ($category !== 'all') {
+    $items = array_filter($items, function($item) use ($category) {
+        return $item['category_id'] == $category;
+    });
 }
 
 error_log("Debug - Items retrieved for top page: " . print_r($items, true));

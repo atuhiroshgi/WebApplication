@@ -90,72 +90,96 @@
     ?>
 
     <!-- 検索結果表示セクション -->
-    <?php if (!empty($items)): ?>
-        <h2>商品一覧</h2>
-        <div class="filter-section">
-            <div class="filter-group">
-                <h3>販売状態</h3>
-                <div class="filter-buttons">
-                    <a href="?status=all<?php echo isset($_GET['category']) ? '&category='.$_GET['category'] : ''; ?>" 
-                       class="filter-btn <?php echo (!isset($_GET['status']) || $_GET['status'] === 'all') ? 'active' : ''; ?>">
-                        すべて
-                    </a>
-                    <a href="?status=available<?php echo isset($_GET['category']) ? '&category='.$_GET['category'] : ''; ?>" 
-                       class="filter-btn <?php echo (isset($_GET['status']) && $_GET['status'] === 'available') ? 'active' : ''; ?>">
-                        販売中
-                    </a>
-                    <a href="?status=stopped<?php echo isset($_GET['category']) ? '&category='.$_GET['category'] : ''; ?>" 
-                       class="filter-btn <?php echo (isset($_GET['status']) && $_GET['status'] === 'stopped') ? 'active' : ''; ?>">
-                        販売停止
-                    </a>
-                </div>
+    <h2>商品一覧</h2>
+    <div class="filter-section">
+        <div class="filter-group">
+            <h3>販売状態</h3>
+            <div class="filter-buttons">
+                <a href="?status=all<?php echo isset($_GET['category']) ? '&category='.$_GET['category'] : ''; ?>&scroll=true" 
+                   class="filter-btn <?php echo (!isset($_GET['status']) || $_GET['status'] === 'all') ? 'active' : ''; ?>">
+                    すべて
+                </a>
+                <a href="?status=available<?php echo isset($_GET['category']) ? '&category='.$_GET['category'] : ''; ?>&scroll=true" 
+                   class="filter-btn <?php echo (isset($_GET['status']) && $_GET['status'] === 'available') ? 'active' : ''; ?>">
+                    販売中
+                </a>
+                <a href="?status=stopped<?php echo isset($_GET['category']) ? '&category='.$_GET['category'] : ''; ?>&scroll=true" 
+                   class="filter-btn <?php echo (isset($_GET['status']) && $_GET['status'] === 'stopped') ? 'active' : ''; ?>">
+                    販売停止
+                </a>
             </div>
+        </div>
 
-            <div class="filter-group">
-                <h3>カテゴリ</h3>
-                <div class="filter-buttons">
-                    <a href="?category=all<?php echo isset($_GET['status']) ? '&status='.$_GET['status'] : ''; ?>" 
-                       class="filter-btn <?php echo (!isset($_GET['category']) || $_GET['category'] === 'all') ? 'active' : ''; ?>">
-                        すべて
-                    </a>
-                    <?php foreach ($categories as $id => $name) : ?>
-                        <a href="?category=<?php echo $id; ?><?php echo isset($_GET['status']) ? '&status='.$_GET['status'] : ''; ?>" 
+        <div class="filter-group">
+            <h3>カテゴリ</h3>
+            <!-- デバッグ表示 -->
+            <div style="font-size: 12px; color: #666; margin-bottom: 10px;">
+                <?php
+                echo "カテゴリ一覧：";
+                foreach ($categories as $id => $name) {
+                    echo "ID: " . $id . " = " . $name . ", ";
+                }
+                ?>
+            </div>
+            <div class="filter-buttons">
+                <a href="?category=all<?php echo isset($_GET['status']) ? '&status='.$_GET['status'] : ''; ?>&scroll=true" 
+                   class="filter-btn <?php echo (!isset($_GET['category']) || $_GET['category'] === 'all') ? 'active' : ''; ?>">
+                    すべて
+                </a>
+                <?php foreach ($categories as $id => $name) : ?>
+                    <?php if ($id != 4): ?>  <!-- category_id=4 は別途「その他」として表示 -->
+                        <a href="?category=<?php echo $id; ?><?php echo isset($_GET['status']) ? '&status='.$_GET['status'] : ''; ?>&scroll=true" 
                            class="filter-btn <?php echo (isset($_GET['category']) && $_GET['category'] == $id) ? 'active' : ''; ?>">
                             <?php echo htmlspecialchars($name); ?>
                         </a>
-                    <?php endforeach; ?>
-                </div>
+                    <?php endif; ?>
+                <?php endforeach; ?>
+                <a href="?category=4<?php echo isset($_GET['status']) ? '&status='.$_GET['status'] : ''; ?>&scroll=true" 
+                   class="filter-btn <?php echo (isset($_GET['category']) && $_GET['category'] == '4') ? 'active' : ''; ?>">
+                    その他
+                </a>
             </div>
         </div>
-        <div class="container" id="item-list">
-            <table class="listTbl">
-                <tr>
-                    <th>ID</th>
-                    <th>商品名</th>
-                    <th>価格</th>
-                    <th>販売状況</th>
-                    <th>操作</th>
-                </tr>
-                <?php foreach($items as $item): ?>
-                <tr>
-                    <td><?= htmlspecialchars($item['item_id'] ?? '') ?></td>
-                    <td><?= htmlspecialchars($item['item_name'] ?? '') ?></td>
-                    <td>¥<?= number_format((int)($item['item_price'] ?? 0)) ?></td>
-                    <td>
-                        <?php 
-                            if (isset($item['stop_flg'])) {
-                                echo $item['stop_flg'] == 0 ? '販売中' : '販売停止';
-                            }
-                        ?>
-                    </td>
-                    <td>
-                        <a href="../ctrl/item_update.php?item_id=<?= htmlspecialchars($item['item_id'] ?? '') ?>">編集</a>
-                    </td>
-                </tr>
-                <?php endforeach; ?>
-            </table>
-        </div>
-    <?php endif; ?>
+    </div>
+
+    <div class="container" id="item-list">
+        <?php if (isset($items)): ?>
+            <?php if (empty($items)): ?>
+                <p class="no-results">検索条件に該当する商品は見つかりませんでした。</p>
+            <?php else: ?>
+                <table class="listTbl">
+                    <tr>
+                        <th>ID</th>
+                        <th>商品名</th>
+                        <th>価格</th>
+                        <th>販売状況</th>
+                        <th>操作</th>
+                    </tr>
+                    <?php foreach($items as $item): ?>
+                    <tr>
+                        <td><?= htmlspecialchars($item['item_id'] ?? '') ?></td>
+                        <td><?= htmlspecialchars($item['item_name'] ?? '') ?></td>
+                        <td>¥<?= number_format((int)($item['item_price'] ?? 0)) ?></td>
+                        <td>
+                            <?php 
+                                if (isset($item['stop_flg'])) {
+                                    echo $item['stop_flg'] == 0 ? '販売中' : '販売停止';
+                                }
+                            ?>
+                        </td>
+                        <td class="operation-buttons">
+                            <a href="../ctrl/item_update.php?item_id=<?= htmlspecialchars($item['item_id'] ?? '') ?>" class="edit-btn">編集</a>
+                            <form action="../ctrl/item_delete.php" method="post" class="delete-form" onsubmit="return confirm('本当にこの商品を削除しますか？');">
+                                <input type="hidden" name="item_id" value="<?= htmlspecialchars($item['item_id'] ?? '') ?>">
+                                <input type="submit" value="削除" class="delete-btn">
+                            </form>
+                        </td>
+                    </tr>
+                    <?php endforeach; ?>
+                </table>
+            <?php endif; ?>
+        <?php endif; ?>
+    </div>
 
     <!-- メンバー一覧のセクション -->
     <section class="member-section" id="member-list">
@@ -168,24 +192,33 @@
                     <p class="no-results">検索条件に該当する会員は見つかりませんでした。</p>
                 <?php endif; ?>
                 
-                <table>
-                    <tr>
-                        <th>会員ID</th>
-                        <th>氏名</th>
-                        <th>メールアドレス</th>
-                        <th>住所</th>
-                    </tr>
-                    <?php foreach ($members as $member): ?>
+                <table class="member-table">
+                    <thead>
                         <tr>
-                            <td><?php echo htmlspecialchars($member['id'] ?? '', ENT_QUOTES); ?></td>
-                            <td><?php 
-                                $fullName = trim(($member['last_name'] ?? '') . ' ' . ($member['first_name'] ?? ''));
-                                echo htmlspecialchars($fullName, ENT_QUOTES); 
-                            ?></td>
-                            <td><?php echo htmlspecialchars($member['email'] ?? '', ENT_QUOTES); ?></td>
-                            <td><?php echo htmlspecialchars($member['address'] ?? '', ENT_QUOTES); ?></td>
+                            <th>ID</th>
+                            <th>氏名</th>
+                            <th>メールアドレス</th>
+                            <th>住所</th>
+                            <th>操作</th>
                         </tr>
-                    <?php endforeach; ?>
+                    </thead>
+                    <tbody>
+                        <?php foreach ($members as $member): ?>
+                        <tr>
+                            <td><?= htmlspecialchars($member['id'] ?? '') ?></td>
+                            <td><?= htmlspecialchars(($member['last_name'] ?? '') . ' ' . ($member['first_name'] ?? '')) ?></td>
+                            <td><?= htmlspecialchars($member['email'] ?? '') ?></td>
+                            <td><?= htmlspecialchars($member['address'] ?? '') ?></td>
+                            <td class="operation-buttons">
+                                <a href="../ctrl/member_update.php?id=<?= htmlspecialchars($member['id'] ?? '') ?>" class="edit-btn">編集</a>
+                                <form action="../ctrl/member_delete.php" method="post" class="delete-form" onsubmit="return confirm('本当にこのメンバーを削除しますか？');">
+                                    <input type="hidden" name="member_id" value="<?= htmlspecialchars($member['id'] ?? '') ?>">
+                                    <input type="submit" value="削除" class="delete-btn">
+                                </form>
+                            </td>
+                        </tr>
+                        <?php endforeach; ?>
+                    </tbody>
                 </table>
             <?php endif; ?>
         </div>
@@ -322,6 +355,42 @@
 
     th {
         background-color: #f5f5f5;
+    }
+
+    .operation-buttons {
+        display: flex;
+        gap: 10px;
+        justify-content: center;
+    }
+
+    .edit-btn, .delete-btn {
+        padding: 5px 10px;
+        border-radius: 4px;
+        text-decoration: none;
+        cursor: pointer;
+    }
+
+    .edit-btn {
+        background-color: #4CAF50;
+        color: white;
+    }
+
+    .delete-btn {
+        background-color: #f44336;
+        color: white;
+        border: none;
+    }
+
+    .edit-btn:hover {
+        background-color: #45a049;
+    }
+
+    .delete-btn:hover {
+        background-color: #da190b;
+    }
+
+    .delete-form {
+        display: inline;
     }
     </style>
 
