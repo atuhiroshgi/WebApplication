@@ -224,6 +224,13 @@ span.err{color: red;}
     box-sizing: border-box;
     background-color: rgba(255, 255, 255, 0.95);
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+    cursor: pointer;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.item-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
 .price {
@@ -406,26 +413,20 @@ div:has(+ .nav-container) {
 }
 
 .search-container {
-    margin: 20px auto;
-    max-width: 600px;
-    padding: 10px;
-}
-
-.search-container form {
-    display: flex;
-    gap: 10px;
+    margin: 20px 0;
+    text-align: center;
 }
 
 .search-container input[type="text"] {
-    flex: 1;
-    padding: 8px;
+    padding: 8px 15px;
+    width: 300px;
     border: 1px solid #ddd;
     border-radius: 4px;
-    font-size: 16px;
+    margin-right: 10px;
 }
 
 .search-container button {
-    padding: 8px 16px;
+    padding: 8px 20px;
     background-color: #4CAF50;
     color: white;
     border: none;
@@ -464,14 +465,706 @@ div:has(+ .nav-container) {
 
 .help-button {
     position: fixed;
-    top: 25px;
+    bottom: 20px;
     right: 20px;
-    font-size: 32px;
-    color: #000;
+    font-size: 2em;
+    color: #4CAF50;
     text-decoration: none;
     transition: color 0.3s;
 }
 
 .help-button:hover {
+    color: #45a049;
+}
+
+/*----------------------------------------------------
+ CART PAGE STYLES
+----------------------------------------------------*/
+.item-controls {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin: 10px 0;
+}
+
+.delete-button {
+    background: none;
+    border: none;
+    color: #e44d26;
+    cursor: pointer;
+    padding: 5px;
+    font-size: 1.2em;
+    transition: color 0.3s;
+}
+
+.delete-button:hover {
+    color: #c53d1c;
+}
+
+.quantity-form {
+    margin: 0;
+}
+
+.total-details {
+    margin-bottom: 20px;
+}
+
+.total-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 10px 0;
+    border-bottom: 1px solid #eee;
+}
+
+.grand-total {
+    border-bottom: none;
+    font-weight: bold;
+    font-size: 1.2em;
+    margin-top: 10px;
+    padding-top: 10px;
+    border-top: 2px solid #333;
+}
+
+.total-label {
+    color: #666;
+}
+
+.total-amount {
+    font-weight: bold;
+}
+
+.grand-total .total-amount {
+    color: #e44d26;
+}
+
+.purchase-button {
+    padding: 10px 20px;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 1.1em;
+    transition: background-color 0.3s;
+}
+
+.purchase-button:hover {
+    background-color: #45a049;
+}
+
+/*----------------------------------------------------
+ ADMIN PAGE STYLES
+----------------------------------------------------*/
+.searchTbl, .listTbl {
+    width: 100%;
+    margin: 20px 0;
+    border-collapse: collapse;
+}
+
+.searchTbl th, .listTbl th {
+    background-color: #f5f5f5;
+    padding: 10px;
+    border: 1px solid #ddd;
+}
+
+.searchTbl td, .listTbl td {
+    padding: 10px;
+    border: 1px solid #ddd;
+}
+
+.btnArea {
+    margin: 20px 0;
+}
+
+.admin-menu {
+    margin: 20px 0;
+}
+
+.admin-button {
+    display: inline-block;
+    padding: 10px 20px;
+    background-color: #4CAF50;
+    color: white;
+    text-decoration: none;
+    border-radius: 4px;
+}
+
+.admin-button:hover {
+    background-color: #45a049;
+}
+
+.filter-section {
+    margin: 20px 0;
+}
+
+.filter-group {
+    margin-bottom: 20px;
+}
+
+.filter-group h3 {
+    margin-bottom: 10px;
+}
+
+.filter-buttons {
+    margin-bottom: 15px;
+}
+
+.filter-btn {
+    display: inline-block;
+    padding: 8px 16px;
+    margin: 0 5px 5px 0;
+    background-color: #f0f0f0;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    text-decoration: none;
     color: #333;
+}
+
+.filter-btn:hover {
+    background-color: #e0e0e0;
+}
+
+.filter-btn.active {
+    background-color: #4CAF50;
+    color: white;
+    border-color: #45a049;
+}
+
+.no-results {
+    text-align: center;
+    padding: 20px;
+    color: #666;
+    background-color: #f8f8f8;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    margin: 20px 0;
+}
+
+.member-section {
+    margin: 20px 0;
+    scroll-margin-top: 20px;
+}
+
+.operation-buttons {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+}
+
+.edit-btn, .delete-btn {
+    padding: 5px 10px;
+    border-radius: 4px;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.edit-btn {
+    background-color: #4CAF50;
+    color: white;
+}
+
+.delete-btn {
+    background-color: #f44336;
+    color: white;
+    border: none;
+}
+
+.edit-btn:hover {
+    background-color: #45a049;
+}
+
+.delete-btn:hover {
+    background-color: #da190b;
+}
+
+.delete-form {
+    display: inline;
+}
+
+/*----------------------------------------------------
+ MEMBER REGISTER STYLES
+----------------------------------------------------*/
+.inputTbl input[type="number"] {
+    width: 80px;
+    padding: 5px;
+}
+
+.inputTbl {
+    width: 100%;
+    max-width: 800px;
+    margin: 20px auto;
+    border-collapse: collapse;
+}
+
+.inputTbl th {
+    width: 200px;
+    padding: 15px;
+    text-align: right;
+    background-color: #f5f5f5;
+    border: 1px solid #ddd;
+}
+
+.inputTbl td {
+    padding: 15px;
+    border: 1px solid #ddd;
+}
+
+.loginArea {
+    text-align: center;
+    margin: 20px 0;
+}
+
+.loginArea a {
+    color: #4CAF50;
+    text-decoration: none;
+}
+
+.loginArea a:hover {
+    text-decoration: underline;
+}
+
+.btnArea {
+    text-align: center;
+    margin: 20px 0;
+}
+
+.btnArea input[type="submit"] {
+    padding: 10px 20px;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 16px;
+}
+
+.btnArea input[type="submit"]:hover {
+    background-color: #45a049;
+}
+
+/*----------------------------------------------------
+ TOP PAGE STYLES
+----------------------------------------------------*/
+.item-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    justify-content: flex-start;
+    background-color: rgba(255, 255, 255, 0.85);
+    padding: 20px;
+    border-radius: 10px;
+    backdrop-filter: blur(5px);
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.item-card {
+    flex: 0 0 calc(33.333% - 20px);
+    min-width: 250px;
+    padding: 15px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    box-sizing: border-box;
+    background-color: rgba(255, 255, 255, 0.95);
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+    cursor: pointer;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.item-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.search-container {
+    margin: 20px 0;
+    text-align: center;
+}
+
+.search-container input[type="text"] {
+    padding: 8px 15px;
+    width: 300px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    margin-right: 10px;
+}
+
+.search-container button {
+    padding: 8px 20px;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.search-container button:hover {
+    background-color: #45a049;
+}
+
+.filter-buttons, .category-buttons {
+    margin: 20px 0;
+    text-align: center;
+}
+
+.filter-btn, .category-btn {
+    display: inline-block;
+    padding: 8px 16px;
+    margin: 0 5px;
+    background-color: #f0f0f0;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    text-decoration: none;
+    color: #333;
+    transition: all 0.3s;
+}
+
+.filter-btn:hover, .category-btn:hover {
+    background-color: #e0e0e0;
+}
+
+.filter-btn.active {
+    background-color: #4CAF50;
+    color: white;
+    border-color: #45a049;
+}
+
+.category-btn.active {
+    background-color: #2196F3;
+    color: white;
+    border-color: #1976D2;
+}
+
+.sold-out-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.sold-out-text {
+    color: white;
+    font-size: 1.5em;
+    font-weight: bold;
+    padding: 10px 20px;
+    background-color: rgba(0, 0, 0, 0.7);
+    border-radius: 5px;
+}
+
+.help-button {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    font-size: 2em;
+    color: #4CAF50;
+    text-decoration: none;
+    transition: color 0.3s;
+}
+
+.help-button:hover {
+    color: #45a049;
+}
+
+/*----------------------------------------------------
+ ADMIN PAGE STYLES
+----------------------------------------------------*/
+/* 管理画面のテーブルスタイル */
+.listTbl {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 20px 0;
+    background-color: white;
+}
+
+.listTbl th {
+    background-color: #f5f5f5;
+    padding: 12px;
+    border: 1px solid #ddd;
+    text-align: center;
+}
+
+.listTbl td {
+    padding: 12px;
+    border: 1px solid #ddd;
+    text-align: center;
+}
+
+/* 管理画面のフィルターボタン */
+.admin-filter-btn {
+    display: inline-block;
+    padding: 8px 16px;
+    margin: 0 5px;
+    background-color: #4CAF50;
+    border: 1px solid #45a049;
+    border-radius: 4px;
+    text-decoration: none;
+    color: white;
+}
+
+.admin-filter-btn:hover {
+    background-color: #45a049;
+}
+
+.admin-filter-btn.active {
+    background-color: #357a38;
+}
+
+/* 管理画面のカテゴリーボタン */
+.admin-category-btn {
+    display: inline-block;
+    padding: 8px 16px;
+    margin: 0 5px;
+    background-color: #4CAF50;
+    border: 1px solid #45a049;
+    border-radius: 4px;
+    text-decoration: none;
+    color: white;
+}
+
+.admin-category-btn:hover {
+    background-color: #45a049;
+}
+
+.admin-category-btn.active {
+    background-color: #357a38;
+}
+
+/* 検索フォーム */
+.search-box {
+    margin: 20px 0;
+    padding: 15px;
+    background-color: #f9f9f9;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+}
+
+.search-item {
+    margin: 10px 0;
+}
+
+.search-item label {
+    display: inline-block;
+    width: 150px;
+    font-weight: bold;
+}
+
+.search-button {
+    margin-top: 10px;
+    padding: 8px 20px;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.search-button:hover {
+    background-color: #45a049;
+}
+
+/* メッセージ表示 */
+.message {
+    padding: 10px;
+    margin: 10px 0;
+    border-radius: 4px;
+}
+
+.message.error {
+    background-color: #ffebee;
+    border: 1px solid #ffcdd2;
+    color: #c62828;
+}
+
+.message.success {
+    background-color: #e8f5e9;
+    border: 1px solid #c8e6c9;
+    color: #2e7d32;
+}
+
+/*----------------------------------------------------
+ TOP PAGE STYLES
+----------------------------------------------------*/
+/* トップページ用のフィルターボタン（青系） */
+.top-filter-btn {
+    display: inline-block;
+    padding: 8px 16px;
+    margin: 0 5px;
+    background-color: #2196F3;
+    border: 1px solid #1976D2;
+    border-radius: 4px;
+    text-decoration: none;
+    color: white;
+}
+
+.top-filter-btn:hover {
+    background-color: #1976D2;
+}
+
+.top-filter-btn.active {
+    background-color: #0d47a1;
+}
+
+/*----------------------------------------------------
+ MEMBER LIST STYLES
+----------------------------------------------------*/
+.member-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 20px 0;
+    background-color: white;
+}
+
+.member-table th {
+    background-color: #f5f5f5;
+    padding: 12px;
+    border: 1px solid #ddd;
+    text-align: center;
+}
+
+.member-table td {
+    padding: 12px;
+    border: 1px solid #ddd;
+    text-align: left;
+}
+
+.member-table td.operation-buttons {
+    text-align: center;
+}
+
+.member-section {
+    margin: 30px 0;
+    background-color: white;
+    padding: 20px;
+    border-radius: 4px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.member-list {
+    margin-top: 20px;
+}
+
+/* メンバー操作ボタンのスタイル */
+.member-table .operation-buttons {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+}
+
+.member-table .edit-btn,
+.member-table .delete-btn {
+    padding: 5px 15px;
+    border-radius: 4px;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.member-table .edit-btn {
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+}
+
+.member-table .delete-btn {
+    background-color: #f44336;
+    color: white;
+    border: none;
+}
+
+.member-table .edit-btn:hover {
+    background-color: #45a049;
+}
+
+.member-table .delete-btn:hover {
+    background-color: #da190b;
+}
+
+/*----------------------------------------------------
+ MEMBER UPDATE STYLES
+----------------------------------------------------*/
+.back-button {
+    display: inline-block;
+    margin: 20px 0;
+    padding: 8px 20px;
+    background-color: #666;
+    color: white;
+    text-decoration: none;
+    border-radius: 4px;
+    transition: background-color 0.3s;
+}
+
+.back-button:hover {
+    background-color: #555;
+}
+
+/* 更新フォームのボタンエリア */
+.btnArea {
+    margin: 20px 0;
+    text-align: center;
+}
+
+.btnArea input[type="submit"] {
+    padding: 10px 30px;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 16px;
+}
+
+.btnArea input[type="submit"]:hover {
+    background-color: #45a049;
+}
+
+/*----------------------------------------------------
+ COMMON NAVIGATION BUTTONS
+----------------------------------------------------*/
+.back-link {
+    display: inline-block;
+    margin: 20px 0;
+    padding: 8px 20px;
+    background-color: #666;
+    color: white;
+    text-decoration: none;
+    border-radius: 4px;
+    transition: background-color 0.3s;
+}
+
+.back-link:hover {
+    background-color: #555;
+}
+
+/*----------------------------------------------------
+ HELP BUTTON STYLES
+----------------------------------------------------*/
+.help-button {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    font-size: 2em;
+    color: #4CAF50;
+    text-decoration: none;
+    transition: color 0.3s;
+    z-index: 1000;
+    background-color: white;
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+}
+
+.help-button:hover {
+    color: #45a049;
+    transform: scale(1.1);
+}
+
+.help-button i {
+    font-size: 30px;
 }

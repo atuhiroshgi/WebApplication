@@ -1,137 +1,115 @@
 <?php
-//**************************************************
-// 初期処理
-//**************************************************
 session_start();
 require_once('../model/dbconnect.php');
 require_once('../model/dbfunction.php');
 
-//**************************************************
-// 変数定義
-//**************************************************
-$arrErr = array();
-$bRet = false;
+// 変数の初期化
+$formData = [
+    'item_id' => isset($_POST['item_id']) ? $_POST['item_id'] : (isset($_GET['item_id']) ? $_GET['item_id'] : ""),
+    'item_name' => isset($_POST['item_name']) ? $_POST['item_name'] : "",
+    'item_price' => isset($_POST['item_price']) ? $_POST['item_price'] : "",
+    'item_text' => isset($_POST['item_text']) ? $_POST['item_text'] : "",
+    'category_id' => isset($_POST['category_id']) ? $_POST['category_id'] : "",
+    'stop_flg' => isset($_POST['stop_flg']) ? ($_POST['stop_flg'] == '1' ? 1 : 0) : 0,
+    'item_image' => isset($_POST['item_image']) ? $_POST['item_image'] : ""
+];
 
-// フォーム用の変数を初期化
-$sItemId = "";
-$sItemName = "";
-$nItemPrice = "";
-$sItemText = "";
-$nCategoryId = "";
-$nStopFlg = "";
-$sItemImage = "";
-$nStepFlg = isset($_POST['step']) ? $_POST['step'] : "";
+$step = isset($_POST['step']) ? $_POST['step'] : "";
 
-//**************************************************
-// 変数取得
-//**************************************************
-error_log("POST data: " . print_r($_POST, true));
-error_log("Step flag: " . $nStepFlg);
-
-// GETまたはPOSTから商品IDを取得
-$itemId = isset($_GET['item_id']) ? $_GET['item_id'] : (isset($_POST['item_id']) ? $_POST['item_id'] : null);
-error_log("Requested item_id: " . $itemId);
-
-//**************************************************
-// 商品情報取得
-//**************************************************
-$item = getItemById($itemId);
-error_log("Retrieved item: " . print_r($item, true));
-
-// 商品情報をフォーム用の変数に設定
-if ($nStepFlg == "") {
-    // 初期表示時は商品情報から取得
+// 商品情報の取得
+if ($step === "") {
+    $item = getItemById($formData['item_id']);
     if ($item) {
-        $sItemId = $item['item_id'];
-        $sItemName = $item['item_name'];
-        $nItemPrice = $item['item_price'];
-        $sItemText = $item['item_text'];
-        $nCategoryId = $item['category_id'];
-        $nStopFlg = (int)$item['stop_flg'];  // 確実に数値に変換
-        $sItemImage = $item['item_image'];
-        error_log("Initial display values - stop_flg: " . $nStopFlg);
+        $formData = [
+            'item_id' => $item['item_id'],
+            'item_name' => $item['item_name'],
+            'item_price' => $item['item_price'],
+            'item_text' => $item['item_text'],
+            'category_id' => $item['category_id'],
+            'stop_flg' => (int)$item['stop_flg'],
+            'item_image' => $item['item_image']
+        ];
     }
-} else {
-    // POST送信時はフォームの値を使用
-    $sItemId = $itemId;
-    $sItemName = isset($_POST['item_name']) ? $_POST['item_name'] : "";
-    $nItemPrice = isset($_POST['item_price']) ? $_POST['item_price'] : "";
-    $sItemText = isset($_POST['item_text']) ? $_POST['item_text'] : "";
-    $nCategoryId = isset($_POST['category_id']) ? $_POST['category_id'] : "";
-    $nStopFlg = isset($_POST['stop_flg']) ? ($_POST['stop_flg'] == '1' ? 1 : 0) : 0;
-    $sItemImage = isset($_POST['item_image']) ? $_POST['item_image'] : "";
-    
-    // デバッグログ追加
-    error_log("POST データ - stop_flg: " . (isset($_POST['stop_flg']) ? $_POST['stop_flg'] : 'not set'));
-    error_log("変換後 - stop_flg: " . $nStopFlg);
 }
 
-//**************************************************
-// 入力チェック
-//**************************************************
-if ($nStepFlg == "1") {
+// バリデーション処理
+function validateItemData($data) {
+    $errors = [];
+    
     // 商品名チェック
-    if ($sItemName == "") {
-        $arrErr['item_name'] = "商品名を入力してください";
+    if ($data['item_name'] === "") {
+        $errors['item_name'] = "商品名を入力してください";
     }
     
     // 価格チェック
-    if ($nItemPrice == "") {
-        $arrErr['item_price'] = "価格を入力してください";
-    } elseif (!is_numeric($nItemPrice) || $nItemPrice < 0) {
-        $arrErr['item_price'] = "価格は0以上の数値を入力してください";
+    if ($data['item_price'] === "") {
+        $errors['item_price'] = "価格を入力してください";
+    } elseif (!is_numeric($data['item_price']) || $data['item_price'] < 0) {
+        $errors['item_price'] = "価格は0以上の数値を入力してください";
     }
 
-    // エラーがある場合は最初のステップに戻す
-    if (count($arrErr) > 0) {
-        $nStepFlg = "";
+    return $errors;
+}
+
+// 入力チェック
+$errors = [];
+if ($step == "1") {
+    $errors = validateItemData($formData);
+    if (!empty($errors)) {
+        $_SESSION['error_message'] = implode("<br>", $errors);
+        $_SESSION['form_data'] = $formData;
+        header('Location: ' . $_SERVER['PHP_SELF'] . '?item_id=' . $formData['item_id']);
+        exit;
     }
 }
 
-//**************************************************
 // 更新処理
-//**************************************************
-if ($nStepFlg == "2" && count($arrErr) == 0) {
+if ($step == "2" && empty($errors)) {
     try {
-        $pdo = db_connect();
-        
-        // 更新前のデータを確認
-        error_log("=== 更新処理開始 ===");
-        error_log("POST データ: " . print_r($_POST, true));
-        
-        // stop_flgの値を確実に整数に変換
-        $nStopFlg = (isset($_POST['stop_flg'])) ? (int)$_POST['stop_flg'] : 1;
-        error_log("変換後の stop_flg: " . $nStopFlg . " (型: " . gettype($nStopFlg) . ")");
-        
-        // 更新前のデータを取得
-        $beforeUpdate = getItemById($sItemId);
-        error_log("更新前のデータ: " . print_r($beforeUpdate, true));
-        
-        $result = updateItem($sItemId, $sItemName, $nItemPrice, $sItemText, $nCategoryId, $nStopFlg, $sItemImage);
-        
+        $result = updateItem(
+            $formData['item_id'],
+            $formData['item_name'],
+            $formData['item_price'],
+            $formData['item_text'],
+            $formData['category_id'],
+            $formData['stop_flg'],
+            $formData['item_image']
+        );
+
         if ($result) {
-            // 更新後のデータを確認
-            $afterUpdate = getItemById($sItemId);
-            error_log("更新後のデータ: " . print_r($afterUpdate, true));
-            
+            $_SESSION['success_message'] = "商品情報を更新しました。";
             header("Location: ./index.php");
             exit;
         } else {
-            error_log("更新失敗");
+            $_SESSION['error_message'] = "更新に失敗しました。";
+            $_SESSION['form_data'] = $formData;
+            header('Location: ' . $_SERVER['PHP_SELF'] . '?item_id=' . $formData['item_id']);
+            exit;
         }
-    } catch (PDOException $e) {
-        error_log("エラー発生: " . $e->getMessage());
+    } catch (Exception $e) {
+        error_log("更新エラー: " . $e->getMessage());
+        $_SESSION['error_message'] = "システムエラーが発生しました。";
+        header('Location: ' . $_SERVER['PHP_SELF'] . '?item_id=' . $formData['item_id']);
+        exit;
     }
 }
 
-//**************************************************
-// HTML表示
-//**************************************************
-if ($nStepFlg == "") {
+// ビューで使用する変数を設定
+$sItemId = $formData['item_id'];
+$sItemName = $formData['item_name'];
+$sItemPrice = $formData['item_price'];
+$nItemPrice = $formData['item_price'];
+$sItemText = $formData['item_text'];
+$nCategoryId = $formData['category_id'];
+$nStopFlg = $formData['stop_flg'];
+$sItemImage = $formData['item_image'];
+
+// ビューの表示
+if ($step == "") {
     require_once('../view/item_update.html');
-} else if ($nStepFlg == "1") {
+} else if ($step == "1") {
     require_once('../view/item_updateCheck.html');
-} else if ($nStepFlg == "2") {
+} else if ($step == "2") {
     require_once('../view/item_update_ok.html');
 }
 ?> 

@@ -1,6 +1,6 @@
 <?php
 //**************************************************
-// 初期処理
+// Controller: リクエスト処理とビジネスロジックの制御
 //**************************************************
 session_start();
 require_once('../model/dbconnect.php');
@@ -9,36 +9,33 @@ require_once('../model/dbfunction.php');
 // データベース接続
 $dbh = db_connect();
 
-// ログイン情報の取得
+// ログイン情報の取得と確認
 $sLoginId = isset($_SESSION['login_id']) ? $_SESSION['login_id'] : "";
 $sLoginPass = isset($_SESSION['login_pass']) ? $_SESSION['login_pass'] : "";
-
-// ログインチェックとユーザー名取得
 $loginOk = loginCheck($sLoginId, $sLoginPass);
 $userName = $loginOk ? getUserName($sLoginId, $sLoginPass) : "";
 
-//**************************************************
-// 商品一覧取得
-//**************************************************
-// 検索キーワードとフィルターの取得
-$keyword = isset($_GET['keyword']) ? trim($_GET['keyword']) : '';
-$filter = isset($_GET['filter']) ? $_GET['filter'] : 'all';
-$category = isset($_GET['category']) ? $_GET['category'] : 'all';
+// 検索パラメータの取得
+$searchParams = [
+    'keyword' => isset($_GET['keyword']) ? trim($_GET['keyword']) : '',
+    'filter' => isset($_GET['filter']) ? $_GET['filter'] : 'all',
+    'category' => isset($_GET['category']) ? $_GET['category'] : 'all'
+];
 
-// 検索、フィルター、カテゴリの組み合わせで商品を取得
-if (!empty($keyword)) {
-    switch ($filter) {
+// Modelを使用してデータを取得
+if (!empty($searchParams['keyword'])) {
+    switch ($searchParams['filter']) {
         case 'available':
-            $items = searchItemsByKeywordAndStatus($keyword, 0);
+            $items = searchItemsByKeywordAndStatus($searchParams['keyword'], 0);
             break;
         case 'stopped':
-            $items = searchItemsByKeywordAndStatus($keyword, 1);
+            $items = searchItemsByKeywordAndStatus($searchParams['keyword'], 1);
             break;
         default:
-            $items = searchItemsByKeyword($keyword);
+            $items = searchItemsByKeyword($searchParams['keyword']);
     }
 } else {
-    switch ($filter) {
+    switch ($searchParams['filter']) {
         case 'available':
             $items = selectItemByStatus(0);
             break;
@@ -50,17 +47,18 @@ if (!empty($keyword)) {
     }
 }
 
-// カテゴリでフィルタリング
-if ($category !== 'all') {
-    $items = array_filter($items, function($item) use ($category) {
-        return $item['category_id'] == $category;
+// カテゴリフィルタリング
+if ($searchParams['category'] !== 'all') {
+    $items = array_filter($items, function($item) use ($searchParams) {
+        return $item['category_id'] == $searchParams['category'];
     });
 }
 
+// デバッグログ
 error_log("Debug - Items retrieved for top page: " . print_r($items, true));
 
 //**************************************************
-// HTML表示
+// Viewの表示
 //**************************************************
 require_once('../view/top.html');
 ?>

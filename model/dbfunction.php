@@ -35,62 +35,52 @@ function insertMember($sFirstName, $sLastName) {
 /**
  * メンバー情報を更新する関数
  * 
- * @param int $sMemberId メンバーID
- * @param string $sFirstName 名前
- * @param string $sLastName 苗字
+ * @param int $memberId メンバーID
+ * @param string $firstName 名
+ * @param string $lastName 姓
+ * @param string $email メールアドレス
+ * @param string $postalCode 郵便番号
+ * @param string $address 住所
+ * @param string $phone 電話番号
  * @return bool 更新の成功/失敗
  */
-function updateMember($sMemberId, $sFirstName, $sLastName, $email = '', $address = '') {
+function updateMember($memberId, $firstName, $lastName, $email, $postalCode, $address, $phone) {
     try {
         $pdo = db_connect();
         
-        // デバッグ情報の出力
-        error_log("=== updateMember 開始 ===");
-        error_log("ID: " . $sMemberId);
-        error_log("FirstName: " . $sFirstName);
-        error_log("LastName: " . $sLastName);
-        error_log("Email: " . $email);
-        error_log("Address: " . $address);
-
-        // 既存のデータを取得
-        $currentData = getMemberById($sMemberId);
-        if (!$currentData) {
-            error_log("既存データの取得に失敗: ID=" . $sMemberId);
-            return false;
-        }
-        
-        $sql = "UPDATE user SET 
-                last_name = :last_name, 
-                first_name = :first_name,
-                email = :email,
-                login_id = :login_id,
-                address = :address
+        $sql = "UPDATE user 
+                SET first_name = :first_name,
+                    last_name = :last_name,
+                    email = :email,
+                    login_id = :login_id,
+                    postal_code = :postal_code,
+                    address = :address,
+                    phone = :phone
                 WHERE id = :id";
         
-        $stmh = $pdo->prepare($sql);
+        $stmt = $pdo->prepare($sql);
         
-        // バインド値の設定
-        $stmh->bindValue(':id', (int)$sMemberId, PDO::PARAM_INT);
-        $stmh->bindValue(':last_name', $sLastName, PDO::PARAM_STR);
-        $stmh->bindValue(':first_name', $sFirstName, PDO::PARAM_STR);
-        $stmh->bindValue(':email', $email, PDO::PARAM_STR);
-        $stmh->bindValue(':login_id', $email, PDO::PARAM_STR);
-        $stmh->bindValue(':address', $address, PDO::PARAM_STR);
+        // パラメータのバインド
+        $stmt->bindValue(':id', $memberId, PDO::PARAM_INT);
+        $stmt->bindValue(':first_name', $firstName, PDO::PARAM_STR);
+        $stmt->bindValue(':last_name', $lastName, PDO::PARAM_STR);
+        $stmt->bindValue(':email', $email, PDO::PARAM_STR);
+        $stmt->bindValue(':login_id', $email, PDO::PARAM_STR); // login_idもemailと同じ値に
+        $stmt->bindValue(':postal_code', $postalCode, PDO::PARAM_STR);
+        $stmt->bindValue(':address', $address, PDO::PARAM_STR);
+        $stmt->bindValue(':phone', $phone, PDO::PARAM_STR);
         
         // 実行
-        $result = $stmh->execute();
+        $result = $stmt->execute();
         
         if (!$result) {
-            error_log("SQLエラー: " . print_r($stmh->errorInfo(), true));
+            error_log("更新失敗: " . print_r($stmt->errorInfo(), true));
         }
         
         return $result;
-
+        
     } catch (PDOException $e) {
         error_log("データベースエラー: " . $e->getMessage());
-        return false;
-    } catch (Exception $e) {
-        error_log("一般エラー: " . $e->getMessage());
         return false;
     }
 }
@@ -685,16 +675,6 @@ function selectAllCategories() {
     }
 }
 
-// カテゴリの定義（定数配列）
-function getCategoryList() {
-    return [
-        0 => 'カレー',
-        1 => 'ナン',
-        2 => 'サイドメニュー',
-        3 => 'ドリンク'
-    ];
-}
-
 /**
  * 管理者IDから管理者情報を取得
  */
@@ -820,5 +800,133 @@ function selectMember() {
     }
 }
 
-?>
+/**
+ * 注文確認用の情報を取得する関数
+ * 
+ * @param array $cart セッションのカート情報
+ * @return array|false 注文情報の配列、またはカートが空の場合はfalse
+ */
+function getOrderConfirmationData($cart) {
+    // カート内商品情報を取得
+    $cartItems = getCartItems($cart);
+    
+    // カートが空の場合はfalseを返す
+    if (empty($cartItems)) {
+        return false;
+    }
+    
+    // 合計金額の計算
+    $totalAmount = 0;
+    foreach ($cartItems as $item) {
+        $totalAmount += $item['item_price'] * $item['quantity'];
+    }
+    
+    return [
+        'cartItems' => $cartItems,
+        'totalAmount' => $totalAmount
+    ];
+}
 
+/**
+ * 管理画面のインデックスページ用のデータを取得する関数
+ * 
+ * @param array $params GETパラメータ
+ * @param int|null $adminId 管理者ID
+ * @return array ページに必要なデータ
+ */
+function getAdminIndexData($params, $adminId = null) {
+    $data = [
+        'adminName' => '',
+        'adminId' => '',
+        'categories' => [],
+        'items' => [],
+        'members' => [],
+        'searchParams' => []
+    ];
+    
+    // 管理者情報の取得
+    if ($adminId) {
+        $adminInfo = selectAdminById($adminId);
+        if (!empty($adminInfo)) {
+            $data['adminName'] = $adminInfo[0]['login_id'];
+            $data['adminId'] = $adminId;
+        }
+    }
+    
+    // フォーム用パラメータの初期化
+    $data['searchParams'] = [
+        // 商品関連
+        'sItemId' => isset($params['sItemId']) ? $params['sItemId'] : '',
+        'sItemName' => isset($params['sItemName']) ? $params['sItemName'] : '',
+        
+        // メンバー関連
+        'sMemberName' => isset($params['sMemberName']) ? $params['sMemberName'] : '',
+        'sEmail' => isset($params['sEmail']) ? $params['sEmail'] : '',
+        'sAddress' => isset($params['sAddress']) ? $params['sAddress'] : '',
+        
+        // フィルター用
+        'status' => isset($params['status']) ? $params['status'] : 'all',
+        'category' => isset($params['category']) ? $params['category'] : 'all',
+        
+        // 既存のパラメータ
+        'item_id' => isset($params['item_id']) ? $params['item_id'] : '',
+        'item_name' => isset($params['item_name']) ? $params['item_name'] : '',
+        'item_price' => isset($params['item_price']) ? $params['item_price'] : '',
+        'item_text' => isset($params['item_text']) ? $params['item_text'] : '',
+        'category_id' => isset($params['category_id']) ? $params['category_id'] : '',
+        'stop_flg' => isset($params['stop_flg']) ? $params['stop_flg'] : '',
+        'item_image' => isset($params['item_image']) ? $params['item_image'] : '',
+        'member_id' => isset($params['member_id']) ? $params['member_id'] : '',
+        'last_name' => isset($params['last_name']) ? $params['last_name'] : '',
+        'first_name' => isset($params['first_name']) ? $params['first_name'] : '',
+        'login_id' => isset($params['login_id']) ? $params['login_id'] : '',
+        'login_pass' => isset($params['login_pass']) ? $params['login_pass'] : '',
+        'address' => isset($params['address']) ? $params['address'] : '',
+        'member_name' => isset($params['member_name']) ? $params['member_name'] : '',
+        'email' => isset($params['email']) ? $params['email'] : ''
+    ];
+    
+    // カテゴリ一覧を取得
+    $data['categories'] = selectAllCategories();
+    
+    // メンバー検索の処理
+    if (!empty($data['searchParams']['member_name']) || 
+        !empty($data['searchParams']['email']) || 
+        !empty($data['searchParams']['address'])) {
+        $data['members'] = searchMember([
+            'member_name' => $data['searchParams']['member_name'],
+            'email' => $data['searchParams']['email'],
+            'address' => $data['searchParams']['address']
+        ]);
+    } else {
+        $data['members'] = selectMember();
+    }
+    
+    // 商品検索とフィルターの処理
+    if ($data['searchParams']['item_id'] || 
+        $data['searchParams']['item_name'] || 
+        $data['searchParams']['item_price']) {
+        $data['items'] = searchItems([
+            'item_id' => $data['searchParams']['item_id'],
+            'item_name' => $data['searchParams']['item_name'],
+            'item_price' => $data['searchParams']['item_price']
+        ]);
+    } else if ($data['searchParams']['category'] !== 'all') {
+        $data['items'] = selectItemByCategory($data['searchParams']['category']);
+    } else if ($data['searchParams']['status'] !== 'all') {
+        switch ($data['searchParams']['status']) {
+            case 'available':
+                $data['items'] = selectItemByStatus(0);
+                break;
+            case 'stopped':
+                $data['items'] = selectItemByStatus(1);
+                break;
+            default:
+                $data['items'] = selectItem();
+        }
+    } else {
+        $data['items'] = selectItem();
+    }
+    
+    return $data;
+}

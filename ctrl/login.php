@@ -1,62 +1,61 @@
 <?php
-//**************************************************
-// 初期処理
-//**************************************************
 session_start();
 require_once('../model/dbconnect.php');
 require_once('../model/dbfunction.php');
 
-//**************************************************
-// 変数定義
-//**************************************************
-$arrErr = array();
+// 変数の初期化
+$formData = [
+    'login_id' => isset($_POST['login_id']) ? $_POST['login_id'] : "",
+    'login_pass' => isset($_POST['login_pass']) ? $_POST['login_pass'] : "",
+];
+$step = isset($_POST['step']) ? $_POST['step'] : "";
+$errors = [];
 
-//**************************************************
-// 変数取得
-//**************************************************
-$sLoginId = isset($_POST['login_id']) ? $_POST['login_id'] : "";
-$sLoginPass = isset($_POST['login_pass']) ? $_POST['login_pass'] : "";
-$nStepFlg = isset($_POST['step']) ? $_POST['step'] : "";
-
-//**************************************************
-// 入力チェック
-//**************************************************
-if($nStepFlg == 1){
-    // ログインIDチェック
-    if($sLoginId == ""){
-        $arrErr['login_id'] = "ログインIDまたはメールアドレスを入力してください";
-    }
-
-    // パスワードチェック
-    if($sLoginPass == ""){
-        $arrErr['login_pass'] = "パスワードを入力してください";
-    }
-}
-
-//**************************************************
-// ログインチェック
-//**************************************************
-$loginOk = false;
-if ($nStepFlg == 1 && count($arrErr) == 0) {
-    $loginOk = loginCheck($sLoginId, $sLoginPass);
+// バリデーション処理
+function validateLoginData($data) {
+    $errors = [];
     
-    if($loginOk === true){
-        //ログイン情報をSESSIONに保存
-        $_SESSION['login_id'] = $sLoginId;
-        $_SESSION['login_pass'] = $sLoginPass;
-
-        //トップページへ遷移
-        header("location: top.php");
-        exit();
+    // ログインIDチェック
+    if ($data['login_id'] === "") {
+        $errors['login_id'] = "ログインIDまたはメールアドレスを入力してください";
     }
-    //ログインチェックNGで何か入力されているとき
-    else if($sLoginId != "" || $sLoginPass != "") {
-        $arrErr['common'] = "ログインできませんでした。";
+    
+    // パスワードチェック
+    if ($data['login_pass'] === "") {
+        $errors['login_pass'] = "パスワードを入力してください";
+    }
+    
+    return $errors;
+}
+
+// ログイン処理
+if ($step == 1) {
+    // 入力チェック
+    $errors = validateLoginData($formData);
+    
+    // エラーがない場合はログインチェック
+    if (empty($errors)) {
+        $loginResult = loginCheck($formData['login_id'], $formData['login_pass']);
+        
+        if ($loginResult === true) {
+            // ログイン情報をSESSIONに保存
+            $_SESSION['login_id'] = $formData['login_id'];
+            $_SESSION['login_pass'] = $formData['login_pass'];
+            
+            // トップページへ遷移
+            header("Location: top.php");
+            exit();
+        } else if ($formData['login_id'] !== "" || $formData['login_pass'] !== "") {
+            $errors['common'] = "ログインできませんでした。";
+        }
     }
 }
 
-//**************************************************
-// HTMLを出力
-//**************************************************
+// ビューで使用する変数を設定
+$sLoginId = $formData['login_id'];
+$sLoginPass = $formData['login_pass'];
+$arrErr = $errors;
+
+// ビューの表示
 require_once('../view/login.html');
 ?>

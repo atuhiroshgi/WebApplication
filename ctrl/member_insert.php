@@ -1,75 +1,89 @@
 <?php
-//**************************************************
-// 初期処理
-//**************************************************
+session_start();
 require_once('../model/dbconnect.php');
 require_once('../model/dbfunction.php');
 
-//**************************************************
-// 変数定義
-//**************************************************
-$bRet = false;
-$arrErr = array();
+// 変数の初期化
+$formData = [
+    'last_name' => isset($_POST['last_name']) ? $_POST['last_name'] : "",
+    'first_name' => isset($_POST['first_name']) ? $_POST['first_name'] : "",
+];
 
-//**************************************************
-// 変数取得
-//**************************************************
-$sLastName = isset($_POST['last_name']) ? $_POST['last_name'] : "";
-$sFirstName = isset($_POST['first_name']) ? $_POST['first_name'] : "";
-$nStepFlg = isset($_POST['step']) ? $_POST['step'] : "";
+// セッションからフォームデータを復元（エラー時）
+if (isset($_SESSION['form_data'])) {
+    $formData = array_merge($formData, $_SESSION['form_data']);
+    unset($_SESSION['form_data']);
+}
 
-//**************************************************
-// 入力チェック
-//**************************************************
-if($nStepFlg == 1 || $nStepFlg == 2){
+$step = isset($_POST['step']) ? $_POST['step'] : "";
+$errors = [];
+
+// バリデーション処理
+function validateMemberData($data) {
+    $errors = [];
+    
     // 苗字チェック
-    if($sLastName == ""){
-        $arrErr['last_name'] = "苗字を入力してください";
+    if ($data['last_name'] === "") {
+        $errors['last_name'] = "苗字を入力してください";
+    } elseif (mb_strlen($data['last_name'], "UTF-8") > 10) {
+        $errors['last_name'] = "苗字は10文字以内で入力してください";
     }
-    else if(mb_strlen($sLastName, "UTF-8") > 10) {
-        $arrErr['last_name'] = "苗字は10文字以内で入力してください";
-    }
-
+    
     // 名前チェック
-    if($sFirstName == ""){
-        $arrErr['first_name'] = "名前を入力してください";
+    if ($data['first_name'] === "") {
+        $errors['first_name'] = "名前を入力してください";
+    } elseif (mb_strlen($data['first_name'], "UTF-8") > 10) {
+        $errors['first_name'] = "名前は10文字以内で入力してください";
     }
-    else if(mb_strlen($sFirstName, "UTF-8") > 10) {
-        $arrErr['first_name'] = "名前は10文字以内で入力してください";
-    }
+    
+    return $errors;
+}
 
-    // エラーがある場合は入力画面に戻す
-    if(count($arrErr) > 0){
-        $nStepFlg = "";
+// 入力チェックと確認画面表示
+if ($step == "1" || $step == "2") {
+    $errors = validateMemberData($formData);
+    
+    if (!empty($errors)) {
+        $_SESSION['error_message'] = implode("<br>", $errors);
+        $_SESSION['form_data'] = $formData;
+        header('Location: ' . $_SERVER['PHP_SELF']);
+        exit;
     }
 }
 
-//**************************************************
 // 登録処理
-//**************************************************
-if($nStepFlg == 2 && count($arrErr) == 0){
-    $bRet = insertMember($sFirstName, $sLastName);
-
-    // 登録失敗時は入力画面に戻す
-    if($bRet == false){
-        $nStepFlg = "";
+if ($step == "2" && empty($errors)) {
+    try {
+        $result = insertMember($formData['first_name'], $formData['last_name']);
+        
+        if ($result) {
+            $_SESSION['success_message'] = "メンバーを登録しました";
+            header('Location: member_list.php');
+            exit;
+        } else {
+            $_SESSION['error_message'] = "メンバーの登録に失敗しました";
+            $_SESSION['form_data'] = $formData;
+            header('Location: ' . $_SERVER['PHP_SELF']);
+            exit;
+        }
+    } catch (Exception $e) {
+        error_log("メンバー登録エラー: " . $e->getMessage());
+        $_SESSION['error_message'] = "システムエラーが発生しました";
+        $_SESSION['form_data'] = $formData;
+        header('Location: ' . $_SERVER['PHP_SELF']);
+        exit;
     }
 }
 
-//**************************************************
-// HTML表示
-//**************************************************
-if($nStepFlg == ""){
-    require_once('../view/member_insert.html');
-} else if ($nStepFlg == 1) {
-    require_once('../view/member_insertCheck.html');
-} else if ($nStepFlg == 2) {
-    require_once('../view/member_insertOK.html');
-}
+// ビューで使用する変数を設定
+$sLastName = $formData['last_name'];
+$sFirstName = $formData['first_name'];
+$arrErr = $errors;
 
-// 登録完了後、一覧画面へリダイレクト
-if ($bRet) {
-    header('Location: member_list.php?message=メンバーを登録しました');
-    exit;
+// ビューの表示
+if ($step === "") {
+    require_once('../view/member_insert.html');
+} elseif ($step == "1") {
+    require_once('../view/member_insertCheck.html');
 }
 ?>

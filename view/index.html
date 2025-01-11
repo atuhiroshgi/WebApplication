@@ -79,32 +79,21 @@
         </div>
     </form>
 
-    <!-- デバッグ用のコードを一時的に追加 -->
-    <?php
-    if (!empty($_GET)) {
-        echo '<div style="display:none;">';
-        echo 'GET parameters: ';
-        print_r($_GET);
-        echo '</div>';
-    }
-    ?>
-
-    <!-- 検索結果表示セクション -->
-    <h2>商品一覧</h2>
+    <!-- フィルターセクション -->
     <div class="filter-section">
         <div class="filter-group">
             <h3>販売状態</h3>
             <div class="filter-buttons">
                 <a href="?status=all<?php echo isset($_GET['category']) ? '&category='.$_GET['category'] : ''; ?>&scroll=true" 
-                   class="filter-btn <?php echo (!isset($_GET['status']) || $_GET['status'] === 'all') ? 'active' : ''; ?>">
+                   class="admin-filter-btn <?php echo (!isset($_GET['status']) || $_GET['status'] === 'all') ? 'active' : ''; ?>">
                     すべて
                 </a>
                 <a href="?status=available<?php echo isset($_GET['category']) ? '&category='.$_GET['category'] : ''; ?>&scroll=true" 
-                   class="filter-btn <?php echo (isset($_GET['status']) && $_GET['status'] === 'available') ? 'active' : ''; ?>">
+                   class="admin-filter-btn <?php echo (isset($_GET['status']) && $_GET['status'] === 'available') ? 'active' : ''; ?>">
                     販売中
                 </a>
                 <a href="?status=stopped<?php echo isset($_GET['category']) ? '&category='.$_GET['category'] : ''; ?>&scroll=true" 
-                   class="filter-btn <?php echo (isset($_GET['status']) && $_GET['status'] === 'stopped') ? 'active' : ''; ?>">
+                   class="admin-filter-btn <?php echo (isset($_GET['status']) && $_GET['status'] === 'stopped') ? 'active' : ''; ?>">
                     販売停止
                 </a>
             </div>
@@ -112,36 +101,36 @@
 
         <div class="filter-group">
             <h3>カテゴリ</h3>
-            <!-- デバッグ表示 -->
-            <div style="font-size: 12px; color: #666; margin-bottom: 10px;">
-                <?php
-                echo "カテゴリ一覧：";
-                foreach ($categories as $id => $name) {
-                    echo "ID: " . $id . " = " . $name . ", ";
-                }
-                ?>
-            </div>
             <div class="filter-buttons">
                 <a href="?category=all<?php echo isset($_GET['status']) ? '&status='.$_GET['status'] : ''; ?>&scroll=true" 
-                   class="filter-btn <?php echo (!isset($_GET['category']) || $_GET['category'] === 'all') ? 'active' : ''; ?>">
+                   class="admin-category-btn <?php echo (!isset($_GET['category']) || $_GET['category'] === 'all') ? 'active' : ''; ?>">
                     すべて
                 </a>
-                <?php foreach ($categories as $id => $name) : ?>
-                    <?php if ($id != 4): ?>  <!-- category_id=4 は別途「その他」として表示 -->
-                        <a href="?category=<?php echo $id; ?><?php echo isset($_GET['status']) ? '&status='.$_GET['status'] : ''; ?>&scroll=true" 
-                           class="filter-btn <?php echo (isset($_GET['category']) && $_GET['category'] == $id) ? 'active' : ''; ?>">
-                            <?php echo htmlspecialchars($name); ?>
-                        </a>
-                    <?php endif; ?>
-                <?php endforeach; ?>
+                <a href="?category=0<?php echo isset($_GET['status']) ? '&status='.$_GET['status'] : ''; ?>&scroll=true" 
+                   class="admin-category-btn <?php echo (isset($_GET['category']) && $_GET['category'] === '0') ? 'active' : ''; ?>">
+                    カレー
+                </a>
+                <a href="?category=1<?php echo isset($_GET['status']) ? '&status='.$_GET['status'] : ''; ?>&scroll=true" 
+                   class="admin-category-btn <?php echo (isset($_GET['category']) && $_GET['category'] === '1') ? 'active' : ''; ?>">
+                    ナン
+                </a>
+                <a href="?category=2<?php echo isset($_GET['status']) ? '&status='.$_GET['status'] : ''; ?>&scroll=true" 
+                   class="admin-category-btn <?php echo (isset($_GET['category']) && $_GET['category'] === '2') ? 'active' : ''; ?>">
+                    サイドメニュー
+                </a>
+                <a href="?category=3<?php echo isset($_GET['status']) ? '&status='.$_GET['status'] : ''; ?>&scroll=true" 
+                   class="admin-category-btn <?php echo (isset($_GET['category']) && $_GET['category'] === '3') ? 'active' : ''; ?>">
+                    ドリンク
+                </a>
                 <a href="?category=4<?php echo isset($_GET['status']) ? '&status='.$_GET['status'] : ''; ?>&scroll=true" 
-                   class="filter-btn <?php echo (isset($_GET['category']) && $_GET['category'] == '4') ? 'active' : ''; ?>">
+                   class="admin-category-btn <?php echo (isset($_GET['category']) && $_GET['category'] === '4') ? 'active' : ''; ?>">
                     その他
                 </a>
             </div>
         </div>
     </div>
 
+    <!-- 商品一覧 -->
     <div class="container" id="item-list">
         <?php if (isset($items)): ?>
             <?php if (empty($items)): ?>
@@ -181,7 +170,7 @@
         <?php endif; ?>
     </div>
 
-    <!-- メンバー一覧のセクション -->
+    <!-- メンバー一覧 -->
     <section class="member-section" id="member-list">
         <h2>メンバー一覧</h2>
         
@@ -224,202 +213,31 @@
         </div>
     </section>
 
-    <style>
-    .searchTbl, .listTbl {
-        width: 100%;
-        margin: 20px 0;
-        border-collapse: collapse;
-    }
-
-    .searchTbl th, .listTbl th {
-        background-color: #f5f5f5;
-        padding: 10px;
-        border: 1px solid #ddd;
-    }
-
-    .searchTbl td, .listTbl td {
-        padding: 10px;
-        border: 1px solid #ddd;
-    }
-
-    .btnArea {
-        margin: 20px 0;
-    }
-
-    .admin-menu {
-        margin: 20px 0;
-    }
-
-    .admin-button {
-        display: inline-block;
-        padding: 10px 20px;
-        background-color: #4CAF50;
-        color: white;
-        text-decoration: none;
-        border-radius: 4px;
-    }
-
-    .admin-button:hover {
-        background-color: #45a049;
-    }
-
-    .filter-section {
-        margin: 20px 0;
-    }
-
-    .filter-group {
-        margin-bottom: 20px;
-    }
-
-    .filter-group h3 {
-        margin-bottom: 10px;
-    }
-
-    .filter-buttons {
-        margin-bottom: 15px;
-    }
-
-    .filter-btn {
-        display: inline-block;
-        padding: 8px 16px;
-        margin: 0 5px 5px 0;
-        background-color: #f0f0f0;
-        border: 1px solid #ddd;
-        border-radius: 4px;
-        text-decoration: none;
-        color: #333;
-    }
-
-    .filter-btn:hover {
-        background-color: #e0e0e0;
-    }
-
-    .filter-btn.active {
-        background-color: #4CAF50;
-        color: white;
-        border-color: #45a049;
-    }
-
-    .no-results {
-        text-align: center;
-        padding: 20px;
-        color: #666;
-        background-color: #f8f8f8;
-        border: 1px solid #ddd;
-        border-radius: 4px;
-        margin: 20px 0;
-    }
-
-    table {
-        width: 100%;
-        border-collapse: collapse;
-        margin-top: 20px;
-    }
-
-    th, td {
-        padding: 8px;
-        border: 1px solid #ddd;
-        text-align: left;
-    }
-
-    th {
-        background-color: #f5f5f5;
-    }
-
-    .member-section {
-        margin: 20px 0;
-        scroll-margin-top: 20px;
-    }
-
-    .no-results {
-        text-align: center;
-        padding: 20px;
-        color: #666;
-        background-color: #f8f8f8;
-        border: 1px solid #ddd;
-        border-radius: 4px;
-        margin: 20px 0;
-    }
-
-    table {
-        width: 100%;
-        border-collapse: collapse;
-        margin-top: 20px;
-    }
-
-    th, td {
-        padding: 8px;
-        border: 1px solid #ddd;
-        text-align: left;
-    }
-
-    th {
-        background-color: #f5f5f5;
-    }
-
-    .operation-buttons {
-        display: flex;
-        gap: 10px;
-        justify-content: center;
-    }
-
-    .edit-btn, .delete-btn {
-        padding: 5px 10px;
-        border-radius: 4px;
-        text-decoration: none;
-        cursor: pointer;
-    }
-
-    .edit-btn {
-        background-color: #4CAF50;
-        color: white;
-    }
-
-    .delete-btn {
-        background-color: #f44336;
-        color: white;
-        border: none;
-    }
-
-    .edit-btn:hover {
-        background-color: #45a049;
-    }
-
-    .delete-btn:hover {
-        background-color: #da190b;
-    }
-
-    .delete-form {
-        display: inline;
-    }
-    </style>
-
     <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        // URLパラメータでscrollがtrueの場合にスクロール
-        const urlParams = new URLSearchParams(window.location.search);
-        if (urlParams.get('scroll') === 'true') {
-            const itemList = document.getElementById('item-list');
-            if (itemList) {
-                itemList.scrollIntoView({ 
-                    behavior: 'smooth',
-                    block: 'start'
-                });
+        document.addEventListener('DOMContentLoaded', function() {
+            // URLパラメータでscrollがtrueの場合にスクロール
+            const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.get('scroll') === 'true') {
+                const itemList = document.getElementById('item-list');
+                if (itemList) {
+                    itemList.scrollIntoView({ 
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
             }
-        }
 
-        // scroll=memberパラメータがある場合（メンバー検索後）
-        if (urlParams.get('scroll') === 'member') {
-            // メンバー一覧までスクロール
-            const memberList = document.getElementById('member-list');
-            if (memberList) {
-                memberList.scrollIntoView({ 
-                    behavior: 'smooth',
-                    block: 'start'
-                });
+            // scroll=memberパラメータがある場合（メンバー検索後）
+            if (urlParams.get('scroll') === 'member') {
+                const memberList = document.getElementById('member-list');
+                if (memberList) {
+                    memberList.scrollIntoView({ 
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
             }
-        }
-    });
+        });
     </script>
 </body>
 </html>

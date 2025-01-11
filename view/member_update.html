@@ -16,8 +16,9 @@
         </div>
     <?php endif; ?>
 
-    <form action="../ctrl/member_update.php" method="post">
+    <form action="../ctrl/member_update.php?redirect=index" method="post">
         <input type="hidden" name="id" value="<?php echo htmlspecialchars($member['id'] ?? ''); ?>">
+        <input type="hidden" name="step" value="2">
         <table class="searchTbl">
             <tr>
                 <th>姓</th>
@@ -43,12 +44,14 @@
                     <input type="text" name="address" value="<?php echo htmlspecialchars($member['address'] ?? ''); ?>">
                 </td>
             </tr>
+            <input type="hidden" name="postal_code" value="<?php echo htmlspecialchars($member['postal_code'] ?? ''); ?>">
+            <input type="hidden" name="phone" value="<?php echo htmlspecialchars($member['phone'] ?? ''); ?>">
         </table>
         <div class="btnArea">
             <input type="submit" value="更新">
         </div>
     </form>
 
-    <a href="../ctrl/index.php?scroll=member">戻る</a>
+    <a href="../ctrl/index.php?scroll=member" class="back-button">戻る</a>
 </body>
 </html>

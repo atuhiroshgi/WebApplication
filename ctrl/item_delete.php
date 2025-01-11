@@ -9,11 +9,12 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     exit;
 }
 
-// 商品IDの取得
-$itemId = isset($_POST['item_id']) ? (int)$_POST['item_id'] : 0;
+// 商品IDの取得とバリデーション
+$itemId = filter_input(INPUT_POST, 'item_id', FILTER_VALIDATE_INT);
 
-if ($itemId > 0) {
+if ($itemId) {
     try {
+        // モデル（dbfunction）を使用して削除処理を実行
         if (deleteItem($itemId)) {
             $_SESSION['success_message'] = "商品を削除しました。";
         } else {
