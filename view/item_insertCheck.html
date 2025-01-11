@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="ja">
+<head>
+    <meta charset="utf-8">
+    <link href="../common/css/normalize.css" rel="stylesheet" type="text/css">
+    <link href="../common/css/main.css" rel="stylesheet" type="text/css">
+</head>
+<body>
+    <h1>商品の登録</h1>
+    <h2>入力内容の確認</h2>
+
+    <form action="../ctrl/item_insert.php" method="post">
+        <table class="searchTbl">
+            <tr>
+                <th>商品名</th>
+                <td><?= $sItemName ?></td>
+            </tr>
+            <tr>
+                <th>価格</th>
+                <td><?= $nItemPrice ?>円</td>
+            </tr>
+            <tr>
+                <th>商品説明</th>
+                <td><?= nl2br($sItemText) ?></td>
+            </tr>
+            <tr>
+                <th>販売状態</th>
+                <td><?= $nStopFlg == "0" ? "販売中" : "停止中" ?></td>
+            </tr>
+            <tr>
+                <th>商品画像</th>
+                <td><?= $sItemImage ?></td>
+            </tr>
+        </table>
+
+        <div class="btnArea">
+            <input type="submit" value="登録">
+            <input type="button" value="戻る" onclick="history.back()">
+            <input type="hidden" name="item_name" value="<?= $sItemName ?>">
+            <input type="hidden" name="item_price" value="<?= $nItemPrice ?>">
+            <input type="hidden" name="item_text" value="<?= $sItemText ?>">
+            <input type="hidden" name="stop_flg" value="<?= $nStopFlg ?>">
+            <input type="hidden" name="item_image" value="<?= $sItemImage ?>">
+            <input type="hidden" name="step" value="2">
+        </div>
+    </form>
+
+</body>
+</html> 

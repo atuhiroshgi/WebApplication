@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="ja">
+<head>
+    <meta charset="utf-8">
+    <link href="../common/css/normalize.css" rel="stylesheet" type="text/css">
+    <link href="../common/css/main.css" rel="stylesheet" type="text/css">
+</head>
+<body>
+    <h1>会員登録確認</h1>
+
+    <form action="../ctrl/member_register.php" method="post">
+        <table class="inputTbl">
+            <tr>
+                <th>氏名</th>
+                <td>
+                    <?= htmlspecialchars($sLastName) ?> <?= htmlspecialchars($sFirstName) ?>
+                </td>
+            </tr>
+            <tr>
+                <th>郵便番号</th>
+                <td><?= htmlspecialchars($sPostalCode) ?></td>
+            </tr>
+            <tr>
+                <th>住所</th>
+                <td><?= htmlspecialchars($sAddress) ?></td>
+            </tr>
+            <tr>
+                <th>電話番号</th>
+                <td><?= htmlspecialchars($sPhone) ?></td>
+            </tr>
+            <tr>
+                <th>メールアドレス</th>
+                <td><?= htmlspecialchars($sEmail) ?></td>
+            </tr>
+        </table>
+
+        <div class="btnArea">
+            <input type="button" value="戻る" onclick="history.back()">
+            <input type="submit" value="登録する">
+            <input type="hidden" name="last_name" value="<?= htmlspecialchars($sLastName) ?>">
+            <input type="hidden" name="first_name" value="<?= htmlspecialchars($sFirstName) ?>">
+            <input type="hidden" name="postal_code" value="<?= htmlspecialchars($sPostalCode) ?>">
+            <input type="hidden" name="address" value="<?= htmlspecialchars($sAddress) ?>">
+            <input type="hidden" name="phone" value="<?= htmlspecialchars($sPhone) ?>">
+            <input type="hidden" name="email" value="<?= htmlspecialchars($sEmail) ?>">
+            <input type="hidden" name="password" value="<?= htmlspecialchars($sPassword) ?>">
+            <input type="hidden" name="password_confirm" value="<?= htmlspecialchars($sPasswordConfirm) ?>">
+            <input type="hidden" name="step" value="2">
+        </div>
+    </form>
+</body>
+</html> 

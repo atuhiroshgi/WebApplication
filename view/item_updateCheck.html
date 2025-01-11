@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <link href="../common/css/normalize.css" rel="stylesheet" type="text/css">
+    <link href="../common/css/main.css" rel="stylesheet" type="text/css">
+</head>
+<body>
+    <h1>商品の更新確認</h1>
+    <form action="item_update.php" method="post">
+        <table class="insertTbl">
+            <tr>
+                <th>商品名</th>
+                <td>
+                    <?php echo htmlspecialchars($sItemName); ?>
+                    <input type="hidden" name="item_name" value="<?php echo htmlspecialchars($sItemName); ?>" />
+                </td>
+            </tr>
+            <tr>
+                <th>価格</th>
+                <td>
+                    <?php echo htmlspecialchars($nItemPrice); ?>円
+                    <input type="hidden" name="item_price" value="<?php echo htmlspecialchars($nItemPrice); ?>" />
+                </td>
+            </tr>
+            <tr>
+                <th>商品説明</th>
+                <td>
+                    <?php echo nl2br(htmlspecialchars($sItemText)); ?>
+                    <input type="hidden" name="item_text" value="<?php echo htmlspecialchars($sItemText); ?>" />
+                </td>
+            </tr>
+            <tr>
+                <th>カテゴリID</th>
+                <td>
+                    <?php echo htmlspecialchars($nCategoryId); ?>
+                    <input type="hidden" name="category_id" value="<?php echo htmlspecialchars($nCategoryId); ?>" />
+                </td>
+            </tr>
+            <tr>
+                <th>販売状態</th>
+                <td>
+                    <?php 
+                    $status = ($nStopFlg == 0) ? '販売中' : '販売停止';
+                    echo $status;
+                    error_log("確認画面での stop_flg: " . $nStopFlg);
+                    ?>
+                    <input type="hidden" name="stop_flg" value="<?php echo $nStopFlg; ?>" />
+                </td>
+            </tr>
+            <tr>
+                <th>商品画像</th>
+                <td>
+                    <?php echo htmlspecialchars($sItemImage); ?>
+                    <input type="hidden" name="item_image" value="<?php echo htmlspecialchars($sItemImage); ?>" />
+                </td>
+            </tr>
+        </table>
+        
+        <!-- 必要なhidden項目 -->
+        <input type="hidden" name="item_id" value="<?php echo htmlspecialchars($sItemId); ?>" />
+        <input type="hidden" name="step" value="2" />
+        
+        <?php error_log("確認画面でのフォーム送信前の値 - item_id: $sItemId, stop_flg: $nStopFlg"); ?>
+        
+        <div class="btnArea">
+            <input type="submit" value="更新" />
+        </div>
+    </form>
+    <div class="btnArea">
+        <form action="item_update.php" method="post">
+            <input type="hidden" name="item_id" value="<?= htmlspecialchars($sItemId) ?>" />
+            <input type="hidden" name="item_name" value="<?= htmlspecialchars($sItemName) ?>" />
+            <input type="hidden" name="item_price" value="<?= htmlspecialchars($nItemPrice) ?>" />
+            <input type="hidden" name="item_text" value="<?= htmlspecialchars($sItemText) ?>" />
+            <input type="hidden" name="category_id" value="<?= htmlspecialchars($nCategoryId) ?>" />
+            <input type="hidden" name="stop_flg" value="<?= htmlspecialchars($nStopFlg) ?>" />
+            <input type="hidden" name="item_image" value="<?= htmlspecialchars($sItemImage) ?>" />
+            <input type="hidden" name="step" value="" />
+            <input type="submit" value="戻る" />
+        </form>
+    </div>
+</body>
+</html> 

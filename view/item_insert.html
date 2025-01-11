@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="ja">
+<head>
+    <meta charset="utf-8">
+    <link href="../common/css/normalize.css" rel="stylesheet" type="text/css">
+    <link href="../common/css/main.css" rel="stylesheet" type="text/css">
+</head>
+<body>
+    <h1>商品の登録</h1>
+    <h2>商品情報</h2>
+
+    <form action="../ctrl/item_insert.php" method="post">
+        <table class="searchTbl">
+            <tr>
+                <th>商品ID</th>
+                <td>IDは自動で番号がつきます</td>
+            </tr>
+            <tr>
+                <th>商品名</th>
+                <td>
+                    <input type="text" name="item_name" value="<?= $sItemName ?>"><br />
+                    <span class="err"><?= isset($arrErr['item_name']) ? $arrErr['item_name'] : "" ?></span>
+                </td>
+            </tr>
+            <tr>
+                <th>価格</th>
+                <td>
+                    <input type="number" name="item_price" value="<?= $nItemPrice ?>">円<br />
+                    <span class="err"><?= isset($arrErr['item_price']) ? $arrErr['item_price'] : "" ?></span>
+                </td>
+            </tr>
+            <tr>
+                <th>商品説明</th>
+                <td>
+                    <textarea name="item_text" rows="4" cols="50"><?= $sItemText ?></textarea>
+                </td>
+            </tr>
+            <tr>
+                <th>販売状態</th>
+                <td>
+                    <input type="radio" name="stop_flg" value="0" <?= $nStopFlg == "0" ? "checked" : "" ?>>販売中
+                    <input type="radio" name="stop_flg" value="1" <?= $nStopFlg == "1" ? "checked" : "" ?>>停止中
+                </td>
+            </tr>
+            <tr>
+                <th>商品画像のファイル名</th>
+                <td>
+                    <input type="text" name="item_image" value="<?= $sItemImage ?>">
+                </td>
+            </tr>
+        </table>
+
+        <div class="btnArea">
+            <input type="submit" value="入力確認">
+            <input type="hidden" name="step" value="1" />
+        </div>
+    </form>
+
+    <a href="../ctrl/index.php">トップページへ戻る</a><br />
+
+</body>
+</html> 

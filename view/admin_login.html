@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="ja">
+<head>
+    <meta charset="utf-8">
+    <link href="../common/css/normalize.css" rel="stylesheet" type="text/css">
+    <link href="../common/css/main.css" rel="stylesheet" type="text/css">
+    <title>管理者ログイン</title>
+</head>
+<body>
+    <h1>管理者ログイン</h1>
+    
+    <?php if (isset($arrErr['login'])): ?>
+        <p class="error"><?= $arrErr['login'] ?></p>
+    <?php endif; ?>
+
+    <form action="../ctrl/admin_login.php" method="post">
+        <table class="loginTbl">
+            <tr>
+                <th>ログインID</th>
+                <td><input type="text" name="login_id" value="<?= htmlspecialchars($sLoginId) ?>" /></td>
+            </tr>
+            <tr>
+                <th>パスワード</th>
+                <td><input type="password" name="login_pass" /></td>
+            </tr>
+        </table>
+        <div class="btnArea">
+            <input type="submit" value="ログイン" />
+        </div>
+    </form>
+</body>
+</html> 

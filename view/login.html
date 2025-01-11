@@ -12,7 +12,7 @@
 
         <table class="searchTbl">
             <tr>
-                <th>ログインID</th>
+                <th>ログインID（メールアドレスまたはID）</th>
                 <td>
                     <input type="text" name="login_id" value=""><br />
                     <span class="err"><?= isset($arrErr['login_id']) ? $arrErr['login_id'] : "" ?></span>
@@ -35,8 +35,8 @@
         </div>
     </form>
 
-    <div>
-        <a href="../ctrl/top.php">トップページへ戻る</a>
+    <div class="registerArea">
+        <p>アカウントをお持ちでない方は<a href="../ctrl/member_register.php">こちら</a>から会員登録してください。</p>
     </div>
 
 </body>

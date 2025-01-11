@@ -5,6 +5,8 @@
 /*** BODY **************************/
 body {
 	padding:0 10px;
+	color: #000;
+	position: relative;
 }
 
 /*** HN ****************************/
@@ -12,12 +14,16 @@ h1 {
 	font-size:28px;
 	padding:7px 0px;
 	margin-bottom:20px;
+	background-color: rgba(255, 255, 255, 0.8);
+	border-radius: 5px;
 }
 h2 {
 	font-size:20px;
 	padding:5px 0px 5px 15px;
 	border-left:10px solid #AAAAAA;
 	border-bottom:1px solid #000000;
+	background-color: rgba(255, 255, 255, 0.8);
+	border-radius: 5px;
 }
 
 
@@ -74,4 +80,384 @@ span.err{color: red;}
 
 .notice {
 	color: red;
+}
+
+/*----------------------------------------------------
+ CART STYLES
+----------------------------------------------------*/
+.cart-items {
+    padding: 20px;
+}
+
+.cart-item {
+    border: 1px solid #ddd;
+    padding: 15px;
+    margin-bottom: 10px;
+    border-radius: 5px;
+    background-color: white;
+}
+
+.cart-total {
+    margin-top: 20px;
+    text-align: right;
+}
+
+.quantity-form {
+    margin: 10px 0;
+}
+
+.quantity-input {
+    width: 60px;
+    padding: 5px;
+    margin-right: 10px;
+}
+
+.update-btn {
+    padding: 5px 15px;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 3px;
+    cursor: pointer;
+}
+
+.update-btn:hover {
+    background-color: #45a049;
+}
+
+/*----------------------------------------------------
+ ITEM STYLES
+----------------------------------------------------*/
+.item-link {
+    text-decoration: none;
+    color: #333;
+}
+
+.item-link:hover {
+    color: #e44d26;
+}
+
+.item-detail {
+    max-width: 800px;
+    margin: 20px auto;
+    padding: 20px;
+    background-color: white;
+    border-radius: 5px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.add-to-cart {
+    padding: 10px 20px;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 3px;
+    cursor: pointer;
+    font-size: 1.1em;
+}
+
+.add-to-cart:hover {
+    background-color: #45a049;
+}
+
+.item-image {
+    width: 200px;
+    height: 200px;
+    margin: 0 auto 10px;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.item-image img {
+    max-width: 200px;
+    max-height: 200px;
+    width: auto;
+    height: auto;
+    object-fit: contain;
+    object-position: center;
+    background-color: #ffffff;
+}
+
+.item-detail-image {
+    width: 200px;
+    height: 200px;
+    margin: 0 auto 20px;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.item-detail-image img {
+    max-width: 200px;
+    max-height: 200px;
+    width: auto;
+    height: auto;
+    object-fit: contain;
+    object-position: center;
+    background-color: #ffffff;
+}
+
+/*----------------------------------------------------
+ TOP PAGE STYLES
+----------------------------------------------------*/
+.item-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    justify-content: flex-start;
+    background-color: rgba(255, 255, 255, 0.85);
+    padding: 20px;
+    border-radius: 10px;
+    backdrop-filter: blur(5px);
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.item-card {
+    flex: 0 0 calc(33.333% - 20px);
+    min-width: 250px;
+    padding: 15px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    box-sizing: border-box;
+    background-color: rgba(255, 255, 255, 0.95);
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+}
+
+.price {
+    color: #e44d26;
+    font-weight: bold;
+    font-size: 1.2em;
+}
+
+.description {
+    font-size: 0.9em;
+    color: #666;
+}
+
+.item-image img {
+    width: 200px;
+    height: auto;
+    object-fit: cover;
+}
+
+/*----------------------------------------------------
+ NAVIGATION STYLES
+----------------------------------------------------*/
+.nav-container {
+    position: fixed;
+    top: 25px;
+    right: 20px;
+    z-index: 1000;
+}
+
+.nav-container ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.nav-container li {
+    display: inline-block;
+    margin-left: 15px;
+}
+
+.nav-icon {
+    font-size: 24px;
+    color: #333;
+    text-decoration: none;
+}
+
+.nav-icon:hover {
+    color: #666;
+}
+
+.nav-container .nav-icon i {
+    font-size: 1.7em !important;
+}
+
+/*----------------------------------------------------
+ CONFIRM PAGE STYLES
+----------------------------------------------------*/
+.confirm-container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+.order-summary {
+    margin-bottom: 30px;
+}
+
+.order-item {
+    border-bottom: 1px solid #ddd;
+    padding: 10px 0;
+}
+
+.total {
+    font-size: 1.2em;
+    font-weight: bold;
+    margin-top: 20px;
+}
+
+.button-container {
+    margin-top: 30px;
+    text-align: center;
+}
+
+.button {
+    padding: 10px 20px;
+    margin: 0 10px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.confirm-button {
+    background-color: #4CAF50;
+    color: white;
+}
+
+.back-button {
+    background-color: #f44336;
+    color: white;
+}
+
+.order-form {
+    margin: 20px 0;
+    padding: 20px;
+    background: #fff;
+    border-radius: 5px;
+}
+
+.form-group {
+    margin-bottom: 15px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+}
+
+.form-group input {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+}
+
+/*----------------------------------------------------
+ COMPLETE PAGE STYLES
+----------------------------------------------------*/
+.complete-container {
+    text-align: center;
+    padding: 50px;
+    margin-top: 50px;
+}
+
+.complete-message {
+    font-size: 24px;
+    color: #4CAF50;
+    margin-bottom: 30px;
+}
+
+.back-to-top {
+    display: inline-block;
+    padding: 10px 20px;
+    background-color: #4CAF50;
+    color: white;
+    text-decoration: none;
+    border-radius: 5px;
+}
+
+/*----------------------------------------------------
+ TOP PAGE ADDITIONAL STYLES
+----------------------------------------------------*/
+.item-card {
+    cursor: pointer;
+    position: relative;
+}
+
+.item-card form {
+    position: relative;
+    z-index: 1;
+}
+
+.cart-icon {
+    font-size: 24px;
+    color: #333;
+    text-decoration: none;
+}
+
+.cart-icon:hover {
+    color: #666;
+}
+
+/* ユーザー名表示部分のスタイル */
+div:has(+ .nav-container) {
+    background-color: rgba(255, 255, 255, 0.9);
+    padding: 10px 15px;
+    border-radius: 5px;
+    margin: 10px 0;
+    display: inline-block;
+}
+
+.search-container {
+    margin: 20px auto;
+    max-width: 600px;
+    padding: 10px;
+}
+
+.search-container form {
+    display: flex;
+    gap: 10px;
+}
+
+.search-container input[type="text"] {
+    flex: 1;
+    padding: 8px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 16px;
+}
+
+.search-container button {
+    padding: 8px 16px;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.search-container button:hover {
+    background-color: #45a049;
+}
+
+/* 管理者画面用のスタイルを追加 */
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 20px;
+    background-color: #f8f9fa;
+    margin-bottom: 20px;
+}
+
+.logout-form {
+    margin: 0;
+}
+
+.loginTbl {
+    width: 400px;
+    margin: 20px auto;
+}
+
+.error {
+    color: red;
+    text-align: center;
+    margin: 10px 0;
 }

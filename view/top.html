@@ -4,28 +4,211 @@
     <meta charset="utf-8">
     <link href="../common/css/normalize.css" rel="stylesheet" type="text/css">
     <link href="../common/css/main.css" rel="stylesheet" type="text/css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
-<body style="background-color: #ffffee;">
+<body style="background-image: url('../common/images/BlueDiamond.jpeg'); background-size: cover; background-attachment: fixed;">
     <h1>トップページ</h1>
 
-    <?php if($loginOk === true){ ?>
-    <div>ようこそ！ <?= $userName ?> 様</div>
-    <a href="../ctrl/logout.php">ログアウト</a>
-    <?php } else { ?>
-    <a href="../ctrl/login.php">ログイン</a>
-    <?php } ?>
+    <div class="header">
+        <?php if (!empty($userName)): ?>
+            <p>ようこそ！ <?= htmlspecialchars($userName) ?>様</p>
+        <?php else: ?>
+            <p>ようこそ！ ゲスト様</p>
+        <?php endif; ?>
+    </div>
 
-    <ul>
-        <li>
-            <a href="../ctrl/cart.php">カート</a>
-        </li>
+    <div class="nav-container">
+        <ul>
+            <li>
+                <a href="../ctrl/cart.php" class="nav-icon">
+                    <i class="fas fa-shopping-cart"></i>
+                </a>
+            </li>
+            <li>
+                <a href="../ctrl/mypage.php" class="nav-icon">
+                    <i class="fas fa-user"></i>
+                </a>
+            </li>
+        </ul>
+    </div>
 
-        <?php if($loginOk === true){ ?>
-        <li>
-            <a href="../ctrl/mypage.php">マイページ</a>
-        </li>
-        <?php } ?>
-    </ul>
+    <div class="search-container">
+        <form action="../ctrl/top.php" method="get">
+            <input type="text" name="keyword" 
+                   value="<?= isset($_GET['keyword']) ? htmlspecialchars($_GET['keyword']) : '' ?>" 
+                   placeholder="商品名や説明文で検索">
+            <button type="submit">
+                <i class="fas fa-search"></i> 検索
+            </button>
+        </form>
+    </div>
 
+    <div class="filter-buttons">
+        <a href="?filter=all" class="filter-btn <?php echo (!isset($_GET['filter']) || $_GET['filter'] === 'all') ? 'active' : ''; ?>">
+            すべて表示
+        </a>
+        <a href="?filter=available" class="filter-btn <?php echo (isset($_GET['filter']) && $_GET['filter'] === 'available') ? 'active' : ''; ?>">
+            販売中のみ
+        </a>
+        <a href="?filter=stopped" class="filter-btn <?php echo (isset($_GET['filter']) && $_GET['filter'] === 'stopped') ? 'active' : ''; ?>">
+            在庫切れのみ
+        </a>
+    </div>
+
+    <h2>商品一覧 (<?= count($items) ?>件)</h2>
+    <div class="item-list">
+        <?php if (empty($items)): ?>
+            <p>商品が見つかりませんでした。</p>
+        <?php else: ?>
+            <?php foreach($items as $item): ?>
+                <div class="item-card" 
+                     data-url="../ctrl/item_detail.php?item_id=<?= $item['item_id'] ?>">
+                    <?php if (!empty($item['item_image'])): ?>
+                        <div class="item-image">
+                            <img src="../common/images/items/<?= htmlspecialchars($item['item_image']) ?>" 
+                                 alt="<?= htmlspecialchars($item['item_name']) ?>">
+                            <?php if ($item['stop_flg'] == 1) { ?>
+                                <div class="sold-out-overlay">
+                                    <span class="sold-out-text">在庫切れ</span>
+                                </div>
+                            <?php } ?>
+                        </div>
+                    <?php endif; ?>
+                    <h3><a href="../ctrl/item_detail.php?item_id=<?= $item['item_id'] ?>" class="item-link">
+                        <?= htmlspecialchars($item['item_name']) ?>
+                    </a></h3>
+                    <p class="price">¥<?= number_format($item['item_price']) ?></p>
+                    <p class="description"><?= htmlspecialchars($item['item_text']) ?></p>
+                    <form action="../ctrl/cart.php" method="post">
+                        <input type="hidden" name="item_id" value="<?= $item['item_id'] ?>">
+                        <button type="submit">カートに追加</button>
+                    </form>
+                </div>
+            <?php endforeach; ?>
+        <?php endif; ?>
+    </div>
+
+    <script>
+        document.querySelectorAll('.item-card').forEach(card => {
+            card.addEventListener('click', function(event) {
+                // `カートに追加`のクリックを除外
+                if (event.target.tagName === 'BUTTON' || event.target.closest('form')) {
+                    return;
+                }
+                // 商品詳細ページへ遷移
+                window.location.href = this.dataset.url;
+            });
+        });
+    </script>
+
+    <style>
+    .item-list {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 20px;
+        padding: 20px;
+    }
+
+    .item {
+        width: 200px;
+        padding: 10px;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+    }
+
+    .item-image-container {
+        position: relative;
+        width: 100%;
+        height: 200px;
+        overflow: hidden;
+    }
+
+    .item-image-container img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .out-of-stock {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        background-color: rgba(0, 0, 0, 0.7);
+        color: white;
+        font-size: 1.2em;
+        font-weight: bold;
+    }
+
+    .item-name {
+        margin: 10px 0;
+        font-weight: bold;
+    }
+
+    .item-price {
+        color: #e44d26;
+        font-weight: bold;
+    }
+
+    .item-image {
+        position: relative;
+    }
+
+    .item-image img {
+        max-width: 100%;
+        height: auto;
+    }
+
+    .sold-out-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.5);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .sold-out-text {
+        color: white;
+        font-size: 1.5em;
+        font-weight: bold;
+        padding: 10px 20px;
+        background-color: rgba(0, 0, 0, 0.7);
+        border-radius: 5px;
+    }
+
+    .filter-buttons {
+        margin: 20px 0;
+        text-align: center;
+    }
+
+    .filter-btn {
+        display: inline-block;
+        padding: 8px 16px;
+        margin: 0 5px;
+        background-color: #f0f0f0;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        text-decoration: none;
+        color: #333;
+    }
+
+    .filter-btn:hover {
+        background-color: #e0e0e0;
+    }
+
+    .filter-btn.active {
+        background-color: #4CAF50;
+        color: white;
+        border-color: #45a049;
+    }
+    </style>
 </body>
 </html>

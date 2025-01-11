@@ -4,8 +4,24 @@
     <meta charset="utf-8">
     <link href="../common/css/normalize.css" rel="stylesheet" type="text/css">
     <link href="../common/css/main.css" rel="stylesheet" type="text/css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 <body style="background-color: #eeffee;">
+    <div class="nav-container">
+        <ul>
+            <li>
+                <a href="../ctrl/top.php" class="nav-icon">
+                    <i class="fas fa-home"></i>
+                </a>
+            </li>
+            <li>
+                <a href="../ctrl/cart.php" class="nav-icon">
+                    <i class="fas fa-shopping-cart"></i>
+                </a>
+            </li>
+        </ul>
+    </div>
+
     <h1>マイページ</h1>
 
     <?php if($loginOk === true){ ?>
@@ -14,12 +30,6 @@
     <?php } else { ?>
     <a href="../ctrl/login.php">ログイン</a>
     <?php } ?>
-
-    <ul>
-        <li>
-            <a href="../ctrl/top.php">トップページへ戻る</a>
-        </li>
-    </ul>
 
 </body>
 </html>

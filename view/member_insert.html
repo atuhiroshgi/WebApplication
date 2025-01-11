@@ -6,39 +6,35 @@
     <link href="../common/css/main.css" rel="stylesheet" type="text/css">
 </head>
 <body>
-    <h1>メンバーの更新確認</h1>
+    <h1>メンバーの登録</h1>
     <h2>メンバー情報</h2>
 
-    <form action="../ctrl/update.php" method="post">
+    <form action="../ctrl/member_insert.php" method="post">
       
         <table class="searchTbl">
             <tr>
                 <th>ID</th>
-                <td>
-                    <?= $sMemberId ?>
-                    <input type="hidden" name="id" value="<?= $sMemberId ?>">
-                </td>
+                <td>IDは自動で番号がつきます</td>
             </tr>
             <tr>
                 <th>苗字</th>
                 <td>
-                    <?= $sLastName ?>
-                    <input type="hidden" name="last_name" value="<?= $sLastName ?>">
+                    <input type="text" name="last_name" value="<?= $sLastName ?>"><br />
+                    <span class="err"><?= isset($arrErr['last_name']) ? $arrErr['last_name'] : "" ?></span>
                 </td>
             </tr>
             <tr>
                 <th>名前</th>
                 <td>
-                    <?= $sFirstName ?>
-                    <input type="hidden" name="first_name" value="<?= $sFirstName ?>">
+                    <input type="text" name="first_name" value="<?= $sFirstName ?>"><br />
+                    <span class="err"><?= isset($arrErr['first_name']) ? $arrErr['first_name'] : "" ?></span>
                 </td>
             </tr>
         </table>
 
-        <div class="btnArea clearfix">
-            <input type="button" class="btn" value="修正" onclick="javascript:history.back();">
-            <input type="submit" class="btn" value="更新">
-            <input type="hidden" name="step" value="2" />
+        <div class="btnArea">
+            <input type="submit" value="入力確認">
+            <input type="hidden" name="step" value="1" />
         </div>
     </form>
 

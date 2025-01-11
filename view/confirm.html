@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="ja">
+<head>
+    <meta charset="utf-8">
+    <link href="../common/css/normalize.css" rel="stylesheet" type="text/css">
+    <link href="../common/css/main.css" rel="stylesheet" type="text/css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body style="background-color: #ffeeee;">
+    <div class="nav-container">
+        <ul>
+            <li>
+                <a href="../ctrl/top.php" class="nav-icon">
+                    <i class="fas fa-home"></i>
+                </a>
+            </li>
+            <li>
+                <a href="../ctrl/cart.php" class="nav-icon">
+                    <i class="fas fa-shopping-cart"></i>
+                </a>
+            </li>
+            <li>
+                <a href="../ctrl/mypage.php" class="nav-icon">
+                    <i class="fas fa-user"></i>
+                </a>
+            </li>
+        </ul>
+    </div>
+
+    <div class="confirm-container">
+        <h1>注文確認</h1>
+
+        <div class="order-summary">
+            <h2>注文内容</h2>
+            <?php if (!empty($cartItems) && is_array($cartItems)): ?>
+                <?php foreach($cartItems as $item): ?>
+                    <?php if (isset($item['item_name']) && isset($item['item_price']) && isset($item['quantity'])): ?>
+                        <div class="order-item">
+                            <h3><?= htmlspecialchars($item['item_name']) ?></h3>
+                            <p>単価: ¥<?= number_format($item['item_price']) ?></p>
+                            <p>数量: <?= $item['quantity'] ?></p>
+                            <p>小計: ¥<?= number_format($item['item_price'] * $item['quantity']) ?></p>
+                        </div>
+                    <?php endif; ?>
+                <?php endforeach; ?>
+
+                <div class="total">
+                    合計金額: ¥<?= number_format($totalAmount) ?>
+                </div>
+            <?php else: ?>
+                <p>カートに商品がありません。</p>
+            <?php endif; ?>
+        </div>
+
+        <div class="order-form">
+            <h2>配送先情報</h2>
+            <form action="../ctrl/complete.php" method="post">
+                <div class="form-group">
+                    <label for="name">お名前</label>
+                    <input type="text" id="name" name="name" required>
+                </div>
+                <div class="form-group">
+                    <label for="postal">郵便番号</label>
+                    <input type="text" id="postal" name="postal" required>
+                </div>
+                <div class="form-group">
+                    <label for="address">住所</label>
+                    <input type="text" id="address" name="address" required>
+                </div>
+                <div class="form-group">
+                    <label for="phone">電話番号</label>
+                    <input type="tel" id="phone" name="phone" required>
+                </div>
+                <div class="button-container">
+                    <button type="button" onclick="location.href='../ctrl/cart.php'" class="button back-button">カートに戻る</button>
+                    <button type="submit" class="button confirm-button">購入を確定する</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</body>
+</html> 

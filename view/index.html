@@ -6,56 +6,351 @@
     <link href="../common/css/main.css" rel="stylesheet" type="text/css">
 </head>
 <body>
-    <h1>メンバーの検索</h1>
-    <h2>検索条件</h2>
-    <form action="../ctrl/index.php" method="post">
-    <table class="searchTbl">
-        <tr>
-            <th>ID</th>
-            <td><input type="text" name="id" value="<?= $sMemberId ?>" /></td>
-        </tr>
-        <tr>
-            <th>苗字</th>
-            <td><input type="text" name="last_name" value="<?= $sLastName ?>" /></td>
-        </tr>
-    </table>
-    <div class="btnArea">
-        <input type="submit" value="検索" />
+    <div class="header">
+        <div class="header-content">
+            <h1>管理画面</h1>
+            <div class="user-info">
+                <p class="welcome-message">ようこそ、<?= htmlspecialchars($adminId) ?>さん</p>
+                <form action="../ctrl/admin_logout.php" method="post" class="logout-form">
+                    <input type="submit" value="ログアウト" />
+                </form>
+            </div>
+        </div>
     </div>
+
+    <!-- メッセージ表示エリア -->
+    <?php if (isset($_SESSION['error_message'])): ?>
+        <div class="message error">
+            <?= $_SESSION['error_message'] ?>
+            <?php unset($_SESSION['error_message']); ?>
+        </div>
+    <?php endif; ?>
+
+    <?php if (isset($_SESSION['success_message'])): ?>
+        <div class="message success">
+            <?= $_SESSION['success_message'] ?>
+            <?php unset($_SESSION['success_message']); ?>
+        </div>
+    <?php endif; ?>
+
+    <!-- 商品管理セクション -->
+    <h2>商品管理</h2>
+    <div class="admin-menu">
+        <a href="../ctrl/item_insert.php" class="admin-button">商品の登録</a>
+    </div>
+
+    <!-- 商品検索セクション -->
+    <h2>商品の検索</h2>
+    <form action="index.php" method="get" id="searchForm">
+        <table class="searchTbl">
+            <tr>
+                <th>商品ID</th>
+                <td><input type="text" name="item_id" value="<?= htmlspecialchars($sItemId) ?>" /></td>
+            </tr>
+            <tr>
+                <th>商品名</th>
+                <td><input type="text" name="item_name" value="<?= htmlspecialchars($sItemName) ?>" /></td>
+            </tr>
+        </table>
+        <div class="btnArea">
+            <input type="submit" name="search_items" value="商品を検索" />
+        </div>
+        <input type="hidden" name="scroll" value="true">
     </form>
-    <br />
 
-    <h2>検索結果</h2>
-    <table class="resultTbl">
-    <tr>
-        <th>ID</th>
-        <th>苗字</th>
-        <th>名前</th>
-        <th>編集</th>
-        <th>削除</th>
-    </tr>
-    <?php foreach($arrResult as $item){ ?>
-    <tr>
-        <td><?= $item['id'] ?></td>
-        <td><?= $item['last_name'] ?></td>
-        <td><?= $item['first_name'] ?></td>
-        <td class="btn">
-            <form action="../ctrl/update.php" method="post">
-                <input type="submit" value="変更">
-                <input type="hidden" name="id" value="<?= $item['id'] ?>">
-            </form>
-        </td>
-        <td class="btn">
-            <form action="../ctrl/delete.php" method="post">
-                <input type="submit" value="削除">
-                <input type="hidden" name="id" value="<?= $item['id'] ?>">
-            </form>
-        </td>
-    </tr>
-    <?php } ?>
-    </table>
+    <!-- メンバー検索セクション -->
+    <h2>メンバーの検索</h2>
+    <form action="index.php" method="get" id="memberSearchForm">
+        <div class="search-box">
+            <div class="search-item">
+                <label>会員名：</label>
+                <input type="text" name="member_name" value="<?php echo htmlspecialchars($sMemberName, ENT_QUOTES); ?>" placeholder="姓名を入力">
+            </div>
+            <div class="search-item">
+                <label>メールアドレス：</label>
+                <input type="text" name="email" value="<?php echo htmlspecialchars($sEmail, ENT_QUOTES); ?>">
+            </div>
+            <div class="search-item">
+                <label>住所：</label>
+                <input type="text" name="address" value="<?php echo htmlspecialchars($sAddress, ENT_QUOTES); ?>">
+            </div>
+            <input type="hidden" name="scroll" value="member">
+            <input type="submit" value="検索" class="search-button">
+        </div>
+    </form>
 
-    <a href="../ctrl/insert.php">メンバーを新しく登録する</a>
+    <!-- デバッグ用のコードを一時的に追加 -->
+    <?php
+    if (!empty($_GET)) {
+        echo '<div style="display:none;">';
+        echo 'GET parameters: ';
+        print_r($_GET);
+        echo '</div>';
+    }
+    ?>
 
+    <!-- 検索結果表示セクション -->
+    <?php if (!empty($items)): ?>
+        <h2>商品一覧</h2>
+        <div class="filter-section">
+            <div class="filter-group">
+                <h3>販売状態</h3>
+                <div class="filter-buttons">
+                    <a href="?status=all<?php echo isset($_GET['category']) ? '&category='.$_GET['category'] : ''; ?>" 
+                       class="filter-btn <?php echo (!isset($_GET['status']) || $_GET['status'] === 'all') ? 'active' : ''; ?>">
+                        すべて
+                    </a>
+                    <a href="?status=available<?php echo isset($_GET['category']) ? '&category='.$_GET['category'] : ''; ?>" 
+                       class="filter-btn <?php echo (isset($_GET['status']) && $_GET['status'] === 'available') ? 'active' : ''; ?>">
+                        販売中
+                    </a>
+                    <a href="?status=stopped<?php echo isset($_GET['category']) ? '&category='.$_GET['category'] : ''; ?>" 
+                       class="filter-btn <?php echo (isset($_GET['status']) && $_GET['status'] === 'stopped') ? 'active' : ''; ?>">
+                        販売停止
+                    </a>
+                </div>
+            </div>
+
+            <div class="filter-group">
+                <h3>カテゴリ</h3>
+                <div class="filter-buttons">
+                    <a href="?category=all<?php echo isset($_GET['status']) ? '&status='.$_GET['status'] : ''; ?>" 
+                       class="filter-btn <?php echo (!isset($_GET['category']) || $_GET['category'] === 'all') ? 'active' : ''; ?>">
+                        すべて
+                    </a>
+                    <?php foreach ($categories as $id => $name) : ?>
+                        <a href="?category=<?php echo $id; ?><?php echo isset($_GET['status']) ? '&status='.$_GET['status'] : ''; ?>" 
+                           class="filter-btn <?php echo (isset($_GET['category']) && $_GET['category'] == $id) ? 'active' : ''; ?>">
+                            <?php echo htmlspecialchars($name); ?>
+                        </a>
+                    <?php endforeach; ?>
+                </div>
+            </div>
+        </div>
+        <div class="container" id="item-list">
+            <table class="listTbl">
+                <tr>
+                    <th>ID</th>
+                    <th>商品名</th>
+                    <th>価格</th>
+                    <th>販売状況</th>
+                    <th>操作</th>
+                </tr>
+                <?php foreach($items as $item): ?>
+                <tr>
+                    <td><?= htmlspecialchars($item['item_id'] ?? '') ?></td>
+                    <td><?= htmlspecialchars($item['item_name'] ?? '') ?></td>
+                    <td>¥<?= number_format((int)($item['item_price'] ?? 0)) ?></td>
+                    <td>
+                        <?php 
+                            if (isset($item['stop_flg'])) {
+                                echo $item['stop_flg'] == 0 ? '販売中' : '販売停止';
+                            }
+                        ?>
+                    </td>
+                    <td>
+                        <a href="../ctrl/item_update.php?item_id=<?= htmlspecialchars($item['item_id'] ?? '') ?>">編集</a>
+                    </td>
+                </tr>
+                <?php endforeach; ?>
+            </table>
+        </div>
+    <?php endif; ?>
+
+    <!-- メンバー一覧のセクション -->
+    <section class="member-section" id="member-list">
+        <h2>メンバー一覧</h2>
+        
+        <!-- 検索結果表示部分 -->
+        <div class="member-list">
+            <?php if (isset($members)): ?>
+                <?php if (empty($members)): ?>
+                    <p class="no-results">検索条件に該当する会員は見つかりませんでした。</p>
+                <?php endif; ?>
+                
+                <table>
+                    <tr>
+                        <th>会員ID</th>
+                        <th>氏名</th>
+                        <th>メールアドレス</th>
+                        <th>住所</th>
+                    </tr>
+                    <?php foreach ($members as $member): ?>
+                        <tr>
+                            <td><?php echo htmlspecialchars($member['id'] ?? '', ENT_QUOTES); ?></td>
+                            <td><?php 
+                                $fullName = trim(($member['last_name'] ?? '') . ' ' . ($member['first_name'] ?? ''));
+                                echo htmlspecialchars($fullName, ENT_QUOTES); 
+                            ?></td>
+                            <td><?php echo htmlspecialchars($member['email'] ?? '', ENT_QUOTES); ?></td>
+                            <td><?php echo htmlspecialchars($member['address'] ?? '', ENT_QUOTES); ?></td>
+                        </tr>
+                    <?php endforeach; ?>
+                </table>
+            <?php endif; ?>
+        </div>
+    </section>
+
+    <style>
+    .searchTbl, .listTbl {
+        width: 100%;
+        margin: 20px 0;
+        border-collapse: collapse;
+    }
+
+    .searchTbl th, .listTbl th {
+        background-color: #f5f5f5;
+        padding: 10px;
+        border: 1px solid #ddd;
+    }
+
+    .searchTbl td, .listTbl td {
+        padding: 10px;
+        border: 1px solid #ddd;
+    }
+
+    .btnArea {
+        margin: 20px 0;
+    }
+
+    .admin-menu {
+        margin: 20px 0;
+    }
+
+    .admin-button {
+        display: inline-block;
+        padding: 10px 20px;
+        background-color: #4CAF50;
+        color: white;
+        text-decoration: none;
+        border-radius: 4px;
+    }
+
+    .admin-button:hover {
+        background-color: #45a049;
+    }
+
+    .filter-section {
+        margin: 20px 0;
+    }
+
+    .filter-group {
+        margin-bottom: 20px;
+    }
+
+    .filter-group h3 {
+        margin-bottom: 10px;
+    }
+
+    .filter-buttons {
+        margin-bottom: 15px;
+    }
+
+    .filter-btn {
+        display: inline-block;
+        padding: 8px 16px;
+        margin: 0 5px 5px 0;
+        background-color: #f0f0f0;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        text-decoration: none;
+        color: #333;
+    }
+
+    .filter-btn:hover {
+        background-color: #e0e0e0;
+    }
+
+    .filter-btn.active {
+        background-color: #4CAF50;
+        color: white;
+        border-color: #45a049;
+    }
+
+    .no-results {
+        text-align: center;
+        padding: 20px;
+        color: #666;
+        background-color: #f8f8f8;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        margin: 20px 0;
+    }
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 20px;
+    }
+
+    th, td {
+        padding: 8px;
+        border: 1px solid #ddd;
+        text-align: left;
+    }
+
+    th {
+        background-color: #f5f5f5;
+    }
+
+    .member-section {
+        margin: 20px 0;
+        scroll-margin-top: 20px;
+    }
+
+    .no-results {
+        text-align: center;
+        padding: 20px;
+        color: #666;
+        background-color: #f8f8f8;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        margin: 20px 0;
+    }
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 20px;
+    }
+
+    th, td {
+        padding: 8px;
+        border: 1px solid #ddd;
+        text-align: left;
+    }
+
+    th {
+        background-color: #f5f5f5;
+    }
+    </style>
+
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // URLパラメータでscrollがtrueの場合にスクロール
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.get('scroll') === 'true') {
+            const itemList = document.getElementById('item-list');
+            if (itemList) {
+                itemList.scrollIntoView({ 
+                    behavior: 'smooth',
+                    block: 'start'
+                });
+            }
+        }
+
+        // scroll=memberパラメータがある場合（メンバー検索後）
+        if (urlParams.get('scroll') === 'member') {
+            // メンバー一覧までスクロール
+            const memberList = document.getElementById('member-list');
+            if (memberList) {
+                memberList.scrollIntoView({ 
+                    behavior: 'smooth',
+                    block: 'start'
+                });
+            }
+        }
+    });
+    </script>
 </body>
 </html>

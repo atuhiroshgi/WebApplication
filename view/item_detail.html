@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="ja">
+<head>
+    <meta charset="utf-8">
+    <link href="../common/css/normalize.css" rel="stylesheet" type="text/css">
+    <link href="../common/css/main.css" rel="stylesheet" type="text/css">
+</head>
+<body style="background-color: #ffffee;">
+    <h1>商品詳細</h1>
+
+    <?php if($loginOk === true){ ?>
+    <div>ようこそ！ <?= $userName ?> 様</div>
+    <a href="../ctrl/logout.php">ログアウト</a>
+    <?php } else { ?>
+    <a href="../ctrl/login.php">ログイン</a>
+    <?php } ?>
+
+    <ul>
+        <li><a href="../ctrl/top.php">トップページへ戻る</a></li>
+        <li><a href="../ctrl/cart.php">カート</a></li>
+        <?php if($loginOk === true){ ?>
+        <li><a href="../ctrl/mypage.php">マイページ</a></li>
+        <?php } ?>
+    </ul>
+
+    <div class="item-detail">
+        <?php if (!empty($item['item_image'])): ?>
+            <div class="item-detail-image">
+                <img src="../common/images/items/<?= htmlspecialchars($item['item_image']) ?>" 
+                     alt="<?= htmlspecialchars($item['item_name']) ?>">
+            </div>
+        <?php endif; ?>
+        <h2><?= htmlspecialchars($item['item_name']) ?></h2>
+        <p class="price">¥<?= number_format($item['item_price']) ?></p>
+        <p class="description"><?= nl2br(htmlspecialchars($item['item_text'])) ?></p>
+        <form action="../ctrl/cart.php" method="post">
+            <input type="hidden" name="item_id" value="<?= $item['item_id'] ?>">
+            <button type="submit" class="add-to-cart">カートに追加</button>
+        </form>
+    </div>
+</body>
+</html> 

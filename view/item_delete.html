@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <link href="../common/css/normalize.css" rel="stylesheet" type="text/css">
+    <link href="../common/css/main.css" rel="stylesheet" type="text/css">
+</head>
+<body>
+    <h1>商品の削除確認</h1>
+    <p>以下の商品を削除します。よろしいですか？</p>
+    <table class="insertTbl">
+        <tr>
+            <th>商品ID</th>
+            <td><?= htmlspecialchars($item['item_id']) ?></td>
+        </tr>
+        <tr>
+            <th>商品名</th>
+            <td><?= htmlspecialchars($item['item_name']) ?></td>
+        </tr>
+        <tr>
+            <th>価格</th>
+            <td><?= htmlspecialchars($item['item_price']) ?>円</td>
+        </tr>
+        <tr>
+            <th>商品説明</th>
+            <td><?= nl2br(htmlspecialchars($item['item_text'])) ?></td>
+        </tr>
+        <tr>
+            <th>カテゴリID</th>
+            <td><?= htmlspecialchars($item['category_id']) ?></td>
+        </tr>
+        <tr>
+            <th>販売状態</th>
+            <td><?= $item['stop_flg'] == 0 ? '販売中' : '販売停止' ?></td>
+        </tr>
+        <tr>
+            <th>商品画像</th>
+            <td><?= htmlspecialchars($item['item_image']) ?></td>
+        </tr>
+    </table>
+    <div class="btnArea">
+        <form action="item_delete.php" method="post">
+            <input type="hidden" name="item_id" value="<?= htmlspecialchars($item['item_id']) ?>" />
+            <input type="hidden" name="step" value="1" />
+            <input type="submit" value="削除" />
+        </form>
+    </div>
+    <div class="btnArea">
+        <form action="index.php" method="post">
+            <input type="submit" value="戻る" />
+        </form>
+    </div>
+</body>
+</html> 

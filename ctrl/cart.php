@@ -2,48 +2,42 @@
 //**************************************************
 // 初期処理
 //**************************************************
-    //SESSIONスタート
     session_start();
-
-    //データベース接続関数の定義ファイルを読み込み
     require_once('../model/dbconnect.php');
-
-    //データベース操作関数の定義ファイルを読み込み
     require_once('../model/dbfunction.php');
 
-
 //**************************************************
-// 変数取得
+// ログインチェック
 //**************************************************
-    //ログインID
     $sLoginId = isset($_SESSION['login_id']) ? $_SESSION['login_id'] : "";
-
-    //ログインパスワード
     $sLoginPass = isset($_SESSION['login_pass']) ? $_SESSION['login_pass'] : "";
 
-//**************************************************
-// 検索処理
-//**************************************************
-    //ログインチェックを取得
     $loginOk = loginCheck($sLoginId, $sLoginPass);
-
-    //ログインしていない場合はログイン画面へリダイレクト
     if($loginOk !== true){
         header("location: login.php");
         exit();
     }
 
-    //ログインOKならユーザ名を取得
     $userName = getUserName($sLoginId, $sLoginPass);
 
-//-------------------------------------------------------------------------------
-// ↑ここまでは top.php と一緒
+//**************************************************
+// カート処理
+//**************************************************
+    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+        if (isset($_POST['action']) && $_POST['action'] === 'update') {
+            // 数量更新
+            updateCart($_SESSION['cart'], $_POST['item_id'], (int)$_POST['quantity']);
+        } else if (isset($_POST['item_id'])) {
+            // カートに追加
+            updateCart($_SESSION['cart'], $_POST['item_id']);
+        }
+    }
 
+    // カート内商品情報を取得
+    $cartItems = getCartItems(isset($_SESSION['cart']) ? $_SESSION['cart'] : []);
 
 //**************************************************
 // HTMLを出力
 //**************************************************
-    //画面へ表示
     require_once('../view/cart.html');
-//cartだよお
 ?>

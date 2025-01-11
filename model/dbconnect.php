@@ -1,34 +1,38 @@
 <?php
-//データベース接続関数
-function db_connect(){
-
-    //データベース接続情報
-    $host     = "localhost";
-    $dbname   = "db1223839";
-    $user     = "shopuser";
-    $password = "shoppass";
-
-    //DSNの作成
-    $dsn = "mysql:host=".$host.";dbname=".$dbname.";charset=utf8";
-
+/**
+ * データベースに接続する関数
+ * 
+ * @return PDO データベース接続オブジェクト
+ */
+function db_connect() {
     try {
-        //データベースに接続
-        $pdo = new PDO($dsn, $user, $password);
-
-        //エラーが発生したら例外を投げる設定
-        $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-
-        //プリペアドステートメントを使えるようにする設定
-        $pdo->setAttribute(PDO::ATTR_EMULATE_PREPARES, false);
-
-        //print "接続しました<br />";
-
-    } catch (PDOException $Exception) {
-
-        //例外が発生したら接続エラーを出力
-        die('接続エラー :' . $Exception->getMessage()."<br />");
-
+        $dsn = 'mysql:host=localhost;dbname=db1223839;charset=utf8mb4';
+        $user = 'root';
+        $password = '';
+        
+        $dbh = new PDO($dsn, $user, $password);
+        $dbh->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+        
+        // 文字エンコーディングを設定
+        $dbh->exec("SET NAMES utf8mb4");
+        $dbh->exec("SET CHARACTER SET utf8mb4");
+        $dbh->exec("SET COLLATION_CONNECTION = utf8mb4_unicode_ci");
+        
+        return $dbh;
+        
+    } catch (PDOException $e) {
+        handleError($e);
+        exit;
     }
-    return $pdo;
+}
+
+/**
+ * エラーを処理する関数
+ * 
+ * @param PDOException $e PDOException オブジェクト
+ */
+function handleError($e) {
+    error_log("Database Error: " . $e->getMessage());
+    die("システムエラーが発生しました。管理者にお問い合わせください。");
 }
 ?>

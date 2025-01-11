@@ -2,41 +2,48 @@
 //**************************************************
 // 初期処理
 //**************************************************
-    //SESSIONスタート
-    session_start();
+session_start();
+require_once('../model/dbconnect.php');
+require_once('../model/dbfunction.php');
 
-    //データベース接続関数の定義ファイルを読み込み
-    require_once('../model/dbconnect.php');
-
-    //データベース操作関数の定義ファイルを読み込み
-    require_once('../model/dbfunction.php');
-
+// データベース接続
+$dbh = db_connect();
 
 //**************************************************
-// 変数取得
+// ユーザー情報取得
 //**************************************************
-    //ログインID
-    $sLoginId = isset($_SESSION['login_id']) ? $_SESSION['login_id'] : "";
-
-    //ログインパスワード
-    $sLoginPass = isset($_SESSION['login_pass']) ? $_SESSION['login_pass'] : "";
-
-//**************************************************
-// 検索処理
-//**************************************************
-    //ログインチェックを取得
-    $loginOk = loginCheck($sLoginId, $sLoginPass);
-
-    //ログインOKならユーザ名を取得
-    if($loginOk === true){
-        $userName = getUserName($sLoginId, $sLoginPass);
+$userName = '';
+if (isset($_SESSION['user_id'])) {
+    // ユーザー情報を取得
+    $userId = $_SESSION['user_id'];
+    $userInfo = selectUserById($userId);
+    if (!empty($userInfo)) {
+        $userName = $userInfo[0]['last_name'] . ' ' . $userInfo[0]['first_name'];
     }
-
+}
 
 //**************************************************
-// HTMLを出力
+// 商品一覧取得
 //**************************************************
-    //画面へ表示
-    require_once('../view/top.html');
+// 販売状態フィルターの取得
+$filter = isset($_GET['filter']) ? $_GET['filter'] : 'all';
 
+// フィルターに応じた商品の取得
+switch ($filter) {
+    case 'available':
+        $items = selectItemByStatus(0); // 販売中の商品のみ
+        break;
+    case 'stopped':
+        $items = selectItemByStatus(1); // 販売停止中の商品のみ
+        break;
+    default:
+        $items = selectItem(); // すべての商品
+}
+
+error_log("Debug - Items retrieved for top page: " . print_r($items, true));
+
+//**************************************************
+// HTML表示
+//**************************************************
+require_once('../view/top.html');
 ?>
